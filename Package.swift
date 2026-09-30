@@ -24,17 +24,11 @@ let package = Package(
         .target(
             name: "sfera",
             exclude: privacyManifestExclude,
-            resources: privacyManifestResource,
-            swiftSettings: [
-                .enableUpcomingFeature("ApproachableConcurrency"),
-            ],
+            resources: privacyManifestResource
         ),
         .testTarget(
             name: "sferaTests",
-            dependencies: ["sfera"],
-            swiftSettings: [
-                .enableUpcomingFeature("ApproachableConcurrency"),
-            ],
+            dependencies: ["sfera"]
         ),
     ]
 )
