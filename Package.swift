@@ -1,4 +1,4 @@
-// swift-tools-version: 6.0
+// swift-tools-version: 6.4
 // The swift-tools-version declares the minimum version of Swift required to build this package.
 
 import PackageDescription
@@ -13,7 +13,7 @@ let privacyManifestResource: [PackageDescription.Resource] = []
 
 let package = Package(
     name: "sfera",
-    platforms: [.iOS(.v13), .macOS(.v13), .watchOS(.v8), .tvOS(.v13)],
+    platforms: [.iOS(.v26), .macOS(.v26), .watchOS(.v26), .tvOS(.v26)],
     products: [
         .library(
             name: "sfera",
