@@ -30,7 +30,8 @@ There is no linter configured.
 Domain types map one-to-one to RFC 7946 concepts, and each type owns its own GeoJSON encoding:
 
 - `Position` is an immutable value object. Its `throws(PositionError)` initializer enforces the invariants (latitude in -90…90, longitude in -180…180, altitude finite when present), so an invalid `Position` cannot exist. It encodes itself as an unkeyed array in RFC order: `[longitude, latitude, altitude?]`.
-- `Geometry` is an enum of geometry kinds. Its encoder writes `type` and delegates `coordinates` to the contained value's own encoding instead of reaching into its fields.
+- `Geometry` is an enum of geometry kinds. Its encoder writes `type` and delegates the payload to the contained value's own encoding instead of reaching into its fields: `coordinates` for every kind except `.geometryCollection`, which writes its member geometries under `geometries`. GeometryCollection is a `Geometry` case, not a separate type, because RFC 7946 classifies it as a Geometry object (so it can nest and can be a Feature's geometry).
+- Multi* geometries are typealiases over arrays (`MultiPoint = [Position]`, `MultiLineString = [LineString]`). The RFC allows them, and GeometryCollection, to be empty; that is deliberate and covered by tests. RFC SHOULDs (e.g. avoid nested GeometryCollections) are not enforced.
 - `AtLeast<minimum, Element>` is a collection guaranteed to hold at least `minimum` elements: the first `minimum` live in an `InlineArray`, the rest in an `Array`, and only the tail can grow. It conditionally conforms to `Sendable` and `Encodable` (as a flat array of its elements). `LineString` is `AtLeast<2, Position>`, so the RFC's "two or more positions" rule is enforced at compile time.
 
 ## Tests

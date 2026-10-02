@@ -32,7 +32,7 @@ targets: [
 | MultiPoint | ✅ |
 | MultiLineString | ✅ |
 | MultiPolygon | — |
-| GeometryCollection | — |
+| GeometryCollection | ✅ |
 | Feature | — |
 | FeatureCollection | — |
 
@@ -130,6 +130,20 @@ let network = Geometry.multiLineString([
 ])
 // {"type":"MultiLineString","coordinates":[[[12.4964,41.9028],[11.2558,43.7696],[9.19,45.4642]],[[12.4964,41.9028],[14.2681,40.8518]]]}
 ```
+
+### GeometryCollection
+
+A `GeometryCollection` groups geometries of any kind. Its members are written under `geometries` instead of `coordinates`:
+
+```swift
+let trip = Geometry.geometryCollection([
+    .point(rome),
+    .lineString(LineString([rome, florence], [milan])),
+])
+// {"type":"GeometryCollection","geometries":[{"type":"Point","coordinates":[12.4964,41.9028]},{"type":"LineString","coordinates":[[12.4964,41.9028],[11.2558,43.7696],[9.19,45.4642]]}]}
+```
+
+A collection can be empty or contain other collections. RFC 7946 advises against nesting collections, and against collections of a single geometry type where a Multi* geometry fits, but does not forbid either, so `sfera` accepts both.
 
 ## References
 

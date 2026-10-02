@@ -33,12 +33,14 @@ public enum Geometry: Sendable {
     case lineString(LineString)
     case multiPoint(MultiPoint)
     case multiLineString(MultiLineString)
+    case geometryCollection([Geometry])
 }
 
 extension Geometry: Encodable {
     enum CodingKeys: String, CodingKey {
         case type
         case coordinates
+        case geometries
     }
     public func encode(to encoder: any Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
@@ -59,6 +61,9 @@ extension Geometry: Encodable {
         case .multiLineString(let lineStrings):
             try container.encode("MultiLineString", forKey: .type)
             try container.encode(lineStrings, forKey: .coordinates)
+        case .geometryCollection(let geometries):
+            try container.encode("GeometryCollection", forKey: .type)
+            try container.encode(geometries, forKey: .geometries)
             
         }
     }
