@@ -34,7 +34,7 @@ targets: [
 | MultiPolygon | ✅ |
 | GeometryCollection | ✅ |
 | Feature | ✅ |
-| FeatureCollection | — |
+| FeatureCollection | ✅ |
 
 Decoding is not supported yet.
 
@@ -218,6 +218,20 @@ let city = Feature(
 - `properties` is a JSON object whose values are `JSONValue`s. Strings, numbers, booleans, arrays and nested objects can be written as literals; use `.null` for a null value. Numbers are stored as `Double`, so integers larger than 2^53 lose precision.
 - `id` is a string or a number. When absent, it is left out of the JSON.
 - `geometry` and `properties` are always written. When absent they are `null`, as RFC 7946 requires: `Feature(geometry: nil)` encodes as `{"type":"Feature","geometry":null,"properties":null}`.
+
+### FeatureCollection
+
+A `FeatureCollection` is an ordered list of features, and is the usual top-level object of a GeoJSON file. It can be empty:
+
+```swift
+let milan = try Position(latitude: 45.4642, longitude: 9.19)
+
+let cities = FeatureCollection([
+    Feature(id: "rome", geometry: .point(rome), properties: ["name": "Rome"]),
+    Feature(id: "milan", geometry: .point(milan), properties: ["name": "Milan"]),
+])
+// {"type":"FeatureCollection","features":[{"type":"Feature","id":"rome","geometry":{"type":"Point","coordinates":[12.4964,41.9028]},"properties":{"name":"Rome"}},{"type":"Feature","id":"milan","geometry":{"type":"Point","coordinates":[9.19,45.4642]},"properties":{"name":"Milan"}}]}
+```
 
 ## References
 
