@@ -28,7 +28,7 @@ targets: [
 | Position | ✅ |
 | Point | ✅ |
 | LineString | ✅ |
-| Polygon | — |
+| Polygon | ✅ |
 | MultiPoint | ✅ |
 | MultiLineString | ✅ |
 | MultiPolygon | — |
@@ -130,6 +130,40 @@ let network = Geometry.multiLineString([
 ])
 // {"type":"MultiLineString","coordinates":[[[12.4964,41.9028],[11.2558,43.7696],[9.19,45.4642]],[[12.4964,41.9028],[14.2681,40.8518]]]}
 ```
+
+### Polygon
+
+A `Polygon` has an exterior ring and, optionally, holes. Each ring is a `LinearRing` of three or more distinct vertices. You do not repeat the first vertex at the end: the ring closes itself when encoded, so an open ring cannot be produced. As with `LineString`, the first three vertices go in the first argument and any others in the second:
+
+```swift
+let field = LinearRing([
+    try Position(latitude: 0, longitude: 0),
+    try Position(latitude: 0, longitude: 10),
+    try Position(latitude: 10, longitude: 10),
+], [
+    try Position(latitude: 10, longitude: 0),
+])
+
+let square = Geometry.polygon(Polygon(exterior: field))
+// {"type":"Polygon","coordinates":[[[0,0],[10,0],[10,10],[0,10],[0,0]]]}
+```
+
+Holes are written after the exterior ring, in the order given:
+
+```swift
+let pond = LinearRing([
+    try Position(latitude: 2, longitude: 2),
+    try Position(latitude: 4, longitude: 2),
+    try Position(latitude: 4, longitude: 4),
+], [
+    try Position(latitude: 2, longitude: 4),
+])
+
+let fieldWithPond = Geometry.polygon(Polygon(exterior: field, holes: [pond]))
+// {"type":"Polygon","coordinates":[[[0,0],[10,0],[10,10],[0,10],[0,0]],[[2,2],[2,4],[4,4],[4,2],[2,2]]]}
+```
+
+RFC 7946 requires exterior rings to be counter-clockwise and holes clockwise (the right-hand rule). `sfera` does not correct the orientation yet, so give the vertices in that order.
 
 ### GeometryCollection
 

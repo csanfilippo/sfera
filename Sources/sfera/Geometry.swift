@@ -34,6 +34,7 @@ public enum Geometry: Sendable {
     case multiPoint(MultiPoint)
     case multiLineString(MultiLineString)
     case geometryCollection([Geometry])
+    case polygon(Polygon)
 }
 
 extension Geometry: Encodable {
@@ -64,7 +65,9 @@ extension Geometry: Encodable {
         case .geometryCollection(let geometries):
             try container.encode("GeometryCollection", forKey: .type)
             try container.encode(geometries, forKey: .geometries)
-            
+        case .polygon(let polygon):
+            try container.encode("Polygon", forKey: .type)
+            try container.encode(polygon, forKey: .coordinates)
         }
     }
 }
