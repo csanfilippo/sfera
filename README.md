@@ -30,7 +30,7 @@ targets: [
 | LineString | ✅ |
 | Polygon | — |
 | MultiPoint | ✅ |
-| MultiLineString | — |
+| MultiLineString | ✅ |
 | MultiPolygon | — |
 | GeometryCollection | — |
 | Feature | — |
@@ -115,6 +115,20 @@ let cities = Geometry.multiPoint([rome, florence, milan])
 
 let nothing = Geometry.multiPoint([])
 // {"type":"MultiPoint","coordinates":[]}
+```
+
+### MultiLineString
+
+A `MultiLineString` is an array of line strings. Like `MultiPoint`, it can be empty:
+
+```swift
+let naples = try Position(latitude: 40.8518, longitude: 14.2681)
+
+let network = Geometry.multiLineString([
+    LineString([rome, florence], [milan]),
+    LineString([rome, naples]),
+])
+// {"type":"MultiLineString","coordinates":[[[12.4964,41.9028],[11.2558,43.7696],[9.19,45.4642]],[[12.4964,41.9028],[14.2681,40.8518]]]}
 ```
 
 ## References
