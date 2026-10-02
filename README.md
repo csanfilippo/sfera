@@ -27,7 +27,7 @@ targets: [
 |---|---|
 | Position | ✅ |
 | Point | ✅ |
-| LineString | — |
+| LineString | ✅ |
 | Polygon | — |
 | MultiPoint | — |
 | MultiLineString | — |
@@ -76,15 +76,34 @@ Wrap a `Position` in a `Geometry.point` and encode it with `JSONEncoder`:
 ```swift
 let point = Geometry.point(rome)
 let json = try JSONEncoder().encode(point)
-// {"coordinates":[12.4964,41.9028],"type":"Point"}
+// {"type":"Point","coordinates":[12.4964,41.9028]}
 ```
 
 As RFC 7946 requires, coordinates are written longitude first, followed by the altitude when present:
 
 ```swift
 let summit = Geometry.point(everest)
-// {"coordinates":[86.925,27.9881,8848.86],"type":"Point"}
+// {"type":"Point","coordinates":[86.925,27.9881,8848.86]}
 ```
+
+`JSONEncoder` does not guarantee the order of object keys, and it can change from one run to the next. Set `encoder.outputFormatting = .sortedKeys` if you need stable output.
+
+### LineString
+
+A `LineString` holds two or more positions. The first two are required when you create it, so a line string with fewer than two positions does not compile:
+
+```swift
+let florence = try Position(latitude: 43.7696, longitude: 11.2558)
+let milan = try Position(latitude: 45.4642, longitude: 9.19)
+
+var route = LineString([rome, florence])
+route.append(milan)
+
+let json = try JSONEncoder().encode(Geometry.lineString(route))
+// {"type":"LineString","coordinates":[[12.4964,41.9028],[11.2558,43.7696],[9.19,45.4642]]}
+```
+
+Further positions can also be passed when you create it: `LineString([rome, florence], [milan])`.
 
 ## References
 

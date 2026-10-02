@@ -31,13 +31,13 @@ Domain types map one-to-one to RFC 7946 concepts, and each type owns its own Geo
 
 - `Position` is an immutable value object. Its `throws(PositionError)` initializer enforces the invariants (latitude in -90…90, longitude in -180…180, altitude finite when present), so an invalid `Position` cannot exist. It encodes itself as an unkeyed array in RFC order: `[longitude, latitude, altitude?]`.
 - `Geometry` is an enum of geometry kinds. Its encoder writes `type` and delegates `coordinates` to the contained value's own encoding instead of reaching into its fields.
-- `AtLeast<minimum, Element>` is a collection guaranteed to hold at least `minimum` elements: the first `minimum` live in an `InlineArray`, the rest in an `Array`, and only the tail can grow. `LineString` is intended to be `AtLeast<2, Position>`.
+- `AtLeast<minimum, Element>` is a collection guaranteed to hold at least `minimum` elements: the first `minimum` live in an `InlineArray`, the rest in an `Array`, and only the tail can grow. It conditionally conforms to `Sendable` and `Encodable` (as a flat array of its elements). `LineString` is `AtLeast<2, Position>`, so the RFC's "two or more positions" rule is enforced at compile time.
 
 ## Tests
 
 - Swift Testing, with raw-identifier test names that state the behaviour (e.g. `` `point coordinates are encoded longitude first` ``). One suite per type, in a file named after the suite.
 - Tests use `import sfera`, not `@testable import`, so they exercise only the public API.
-- Encoding tests compare against a JSON string produced with `.sortedKeys` (via a `geoJSON(_:)` helper). `JSONEncoder` writes whole-valued doubles without a fractional part (`10`, not `10.0`).
+- Encoding tests compare against a JSON string produced with `.sortedKeys` (via a `geoJSON(_:)` helper). Without `.sortedKeys`, `JSONEncoder`'s key order changes between runs. `JSONEncoder` writes whole-valued doubles without a fractional part (`10`, not `10.0`).
 - Invariant tests are parameterised and cover both sides of each range, NaN and infinities, plus a test that the boundary values are accepted.
 
 ## Conventions

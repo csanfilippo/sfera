@@ -22,34 +22,32 @@
  SOFTWARE.
  */
 
-public struct AtLeast<let minimum: Int, Element> {
-    private var guaranteed: InlineArray<minimum, Element>
-    private var rest: [Element]
+import sfera
+import Testing
+import Foundation
 
-    public init(_ guaranteed: InlineArray<minimum, Element>, _ rest: [Element] = []) {
-        self.guaranteed = guaranteed
-        self.rest = rest
+@Suite struct GeometryLineStringTests {
+    
+    @Test func `line string positions are encoded in order`() throws {
+        let expectedString = #"{"coordinates":[[0,89],[1,90]],"type":"LineString"}"#
+
+        let lineString: Geometry = .lineString(
+            LineString(
+                [
+                    try .init(latitude: 89, longitude: 0),
+                    try .init(latitude: 90, longitude: 1)
+                ]
+            )
+        )
+
+        let jsonString = try geoJSON(lineString)
+        
+        #expect(jsonString == expectedString)
     }
-
-    public mutating func append(_ element: Element) {
-        rest.append(element)
-    }
-}
-
-extension AtLeast: RandomAccessCollection {
-    public var startIndex: Int { 0 }
-    public var endIndex: Int { minimum + rest.count }
-
-    public subscript(position: Int) -> Element {
-        position < minimum ? guaranteed[position] : rest[position - minimum]
-    }
-}
-
-extension AtLeast: Sendable where Element: Sendable {}
-
-extension AtLeast: Encodable where Element: Encodable {
-    public func encode(to encoder: any Encoder) throws {
-        var container = encoder.unkeyedContainer()
-        try container.encode(contentsOf: self)
+    
+    private func geoJSON(_ geometry: Geometry) throws -> String {
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = .sortedKeys
+        return try #require(String(data: encoder.encode(geometry), encoding: .utf8))
     }
 }

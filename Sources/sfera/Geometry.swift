@@ -24,8 +24,11 @@
 
 import Foundation
 
+public typealias LineString = AtLeast<2, Position>
+
 public enum Geometry: Sendable {
     case point(Position)
+    case lineString(LineString)
 }
 
 extension Geometry: Encodable {
@@ -34,12 +37,18 @@ extension Geometry: Encodable {
         case coordinates
     }
     public func encode(to encoder: any Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        
         switch self {
         case .point(let position):
-            var container = encoder.container(keyedBy: CodingKeys.self)
             
             try container.encode("Point", forKey: .type)
             try container.encode(position, forKey: .coordinates)
+        
+        case .lineString(let lineString):
+            try container.encode("LineString", forKey: .type)
+            try container.encode(lineString, forKey: .coordinates)
+            
         }
     }
 }

@@ -24,6 +24,7 @@
 
 import sfera
 import Testing
+import Foundation
 
 @Suite struct AtLeastTests {
     @Test func `count is the size of the guaranteed elements if no tail is present`() {
@@ -50,5 +51,13 @@ import Testing
         atLeast2.append(5)
 
         #expect(Array(atLeast2) == [1, 2, 3, 4, 5])
+    }
+
+    @Test func `guaranteed and tail elements are encoded as one flat array`() throws {
+        let atLeast2 = AtLeast<2, Int>([1, 2], [3, 4])
+
+        let json = try #require(String(data: JSONEncoder().encode(atLeast2), encoding: .utf8))
+
+        #expect(json == "[1,2,3,4]")
     }
 }
