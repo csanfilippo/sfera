@@ -33,7 +33,7 @@ targets: [
 | MultiLineString | ✅ |
 | MultiPolygon | ✅ |
 | GeometryCollection | ✅ |
-| Feature | — |
+| Feature | ✅ |
 | FeatureCollection | — |
 
 Decoding is not supported yet.
@@ -196,6 +196,28 @@ let trip = Geometry.geometryCollection([
 ```
 
 A collection can be empty or contain other collections. RFC 7946 advises against nesting collections, and against collections of a single geometry type where a Multi* geometry fits, but does not forbid either, so `sfera` accepts both.
+
+### Feature
+
+A `Feature` pairs a geometry with properties and an optional identifier:
+
+```swift
+let city = Feature(
+    id: "rome",
+    geometry: .point(rome),
+    properties: [
+        "name": "Rome",
+        "population": 2_800_000,
+        "capital": true,
+        "districts": ["Centro", "Trastevere"],
+    ]
+)
+// {"type":"Feature","id":"rome","geometry":{"type":"Point","coordinates":[12.4964,41.9028]},"properties":{"name":"Rome","population":2800000,"capital":true,"districts":["Centro","Trastevere"]}}
+```
+
+- `properties` is a JSON object whose values are `JSONValue`s. Strings, numbers, booleans, arrays and nested objects can be written as literals; use `.null` for a null value. Numbers are stored as `Double`, so integers larger than 2^53 lose precision.
+- `id` is a string or a number. When absent, it is left out of the JSON.
+- `geometry` and `properties` are always written. When absent they are `null`, as RFC 7946 requires: `Feature(geometry: nil)` encodes as `{"type":"Feature","geometry":null,"properties":null}`.
 
 ## References
 
