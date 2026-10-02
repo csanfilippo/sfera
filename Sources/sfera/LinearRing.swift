@@ -34,6 +34,45 @@ public struct LinearRing: Sendable {
     }
 }
 
+enum Orientation {
+    case counterClockwise
+    case clockwise
+}
+
+extension LinearRing {
+    func oriented(_ orientation: Orientation) -> LinearRing {
+        guard let current = self.orientation, current != orientation else {
+            return self
+        }
+        return reversed()
+    }
+
+    // A ring with zero area (collinear vertices) has no orientation.
+    private var orientation: Orientation? {
+        let area = twiceSignedArea
+        if area > 0 { return .counterClockwise }
+        if area < 0 { return .clockwise }
+        return nil
+    }
+
+    // Shoelace formula on the plane, longitude as x and latitude as y: positive when counter-clockwise.
+    private var twiceSignedArea: Double {
+        let next = Array(vertices.dropFirst()) + [vertices[0]]
+        return zip(vertices, next).reduce(0) { area, edge in
+            area + edge.0.longitude * edge.1.latitude - edge.1.longitude * edge.0.latitude
+        }
+    }
+
+    // Walks the same edges in the opposite direction, starting from the same first vertex.
+    private func reversed() -> LinearRing {
+        let last = vertices.count - 1
+        return LinearRing(
+            [vertices[0], vertices[last], vertices[last - 1]],
+            Array(vertices[1..<(last - 1)].reversed())
+        )
+    }
+}
+
 extension LinearRing: Encodable {
     
     public func encode(to encoder: any Encoder) throws {

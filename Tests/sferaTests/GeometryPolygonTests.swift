@@ -49,7 +49,40 @@ import Foundation
         
         #expect(jsonString == #"{"coordinates":[[[0,0],[10,0],[10,10],[0,10],[0,0]],[[2,2],[2,4],[4,4],[4,2],[2,2]],[[6,6],[6,8],[8,8],[8,6],[6,6]]],"type":"Polygon"}"#)
     }
-    
+
+    @Test func `clockwise exterior ring is encoded counter-clockwise from the same first vertex`() throws {
+        let clockwiseExterior = LinearRing([try at(0, 0), try at(0, 10), try at(10, 10)], [try at(10, 0)])
+
+        let polygon: Geometry = .polygon(Polygon(exterior: clockwiseExterior))
+
+        #expect(try geoJSON(polygon) == #"{"coordinates":[[[0,0],[10,0],[10,10],[0,10],[0,0]]],"type":"Polygon"}"#)
+    }
+
+    @Test func `clockwise triangular exterior ring is encoded counter-clockwise`() throws {
+        let clockwiseTriangle = LinearRing([try at(0, 0), try at(0, 1), try at(1, 0)])
+
+        let polygon: Geometry = .polygon(Polygon(exterior: clockwiseTriangle))
+
+        #expect(try geoJSON(polygon) == #"{"coordinates":[[[0,0],[1,0],[0,1],[0,0]]],"type":"Polygon"}"#)
+    }
+
+    @Test func `counter-clockwise hole is encoded clockwise from the same first vertex`() throws {
+        let exterior = LinearRing([try at(0, 0), try at(10, 0), try at(10, 10)], [try at(0, 10)])
+        let counterClockwiseHole = LinearRing([try at(2, 2), try at(4, 2), try at(4, 4)], [try at(2, 4)])
+
+        let polygon: Geometry = .polygon(Polygon(exterior: exterior, holes: [counterClockwiseHole]))
+
+        #expect(try geoJSON(polygon) == #"{"coordinates":[[[0,0],[10,0],[10,10],[0,10],[0,0]],[[2,2],[2,4],[4,4],[4,2],[2,2]]],"type":"Polygon"}"#)
+    }
+
+    @Test func `collinear ring has no orientation and is encoded in the order given`() throws {
+        let collinear = LinearRing([try at(0, 0), try at(2, 2), try at(1, 1)])
+
+        let polygon: Geometry = .polygon(Polygon(exterior: collinear))
+
+        #expect(try geoJSON(polygon) == #"{"coordinates":[[[0,0],[2,2],[1,1],[0,0]]],"type":"Polygon"}"#)
+    }
+
     private func at(_ longitude: Double, _ latitude: Double) throws -> Position {
         try Position(latitude: latitude, longitude: longitude)
     }

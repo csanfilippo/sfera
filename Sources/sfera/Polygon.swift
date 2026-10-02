@@ -26,9 +26,10 @@ public struct Polygon: Sendable {
     public let exterior: LinearRing
     public let holes: [LinearRing]
     
+    // RFC 7946 right-hand rule: exterior rings counter-clockwise, holes clockwise.
     public init(exterior: LinearRing, holes: [LinearRing] = []) {
-        self.exterior = exterior
-        self.holes = holes
+        self.exterior = exterior.oriented(.counterClockwise)
+        self.holes = holes.map { $0.oriented(.clockwise) }
     }
 }
 

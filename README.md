@@ -163,7 +163,7 @@ let fieldWithPond = Geometry.polygon(Polygon(exterior: field, holes: [pond]))
 // {"type":"Polygon","coordinates":[[[0,0],[10,0],[10,10],[0,10],[0,0]],[[2,2],[2,4],[4,4],[4,2],[2,2]]]}
 ```
 
-RFC 7946 requires exterior rings to be counter-clockwise and holes clockwise (the right-hand rule). `sfera` does not correct the orientation yet, so give the vertices in that order.
+RFC 7946 requires exterior rings to be counter-clockwise and holes clockwise (the right-hand rule: walking a ring, the polygon's area is always on your left). `Polygon` applies the rule for you: a ring given in the opposite direction is reversed, keeping its first vertex, so you can give the vertices either way round. The order itself must still follow the boundary, since reversing is the only change made. `exterior` and `holes` return the corrected rings. A ring whose vertices all lie on one line has no direction and is kept as given.
 
 ### GeometryCollection
 
