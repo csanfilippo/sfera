@@ -31,7 +31,7 @@ Domain types map one-to-one to RFC 7946 concepts, and each type owns its own Geo
 
 - `Position` is an immutable value object. Its `throws(PositionError)` initializer enforces the invariants (latitude in -90…90, longitude in -180…180, altitude finite when present), so an invalid `Position` cannot exist. It encodes itself as an unkeyed array in RFC order: `[longitude, latitude, altitude?]`.
 - `Geometry` is an enum of geometry kinds. Its encoder writes `type` and delegates `coordinates` to the contained value's own encoding instead of reaching into its fields.
-- `AtLeast<minimum, Element>` (`SupportTypes.swift`) is a collection guaranteed to hold at least `minimum` elements: the first `minimum` live in an `InlineArray`, the rest in an `Array`, and only the tail can grow. `LineString` is intended to be `AtLeast<2, Position>`.
+- `AtLeast<minimum, Element>` is a collection guaranteed to hold at least `minimum` elements: the first `minimum` live in an `InlineArray`, the rest in an `Array`, and only the tail can grow. `LineString` is intended to be `AtLeast<2, Position>`.
 
 ## Tests
 
