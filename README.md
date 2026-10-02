@@ -233,6 +233,21 @@ let cities = FeatureCollection([
 // {"type":"FeatureCollection","features":[{"type":"Feature","id":"rome","geometry":{"type":"Point","coordinates":[12.4964,41.9028]},"properties":{"name":"Rome"}},{"type":"Feature","id":"milan","geometry":{"type":"Point","coordinates":[9.19,45.4642]},"properties":{"name":"Milan"}}]}
 ```
 
+### GeoJSON
+
+`GeoJSON` represents any GeoJSON object: a geometry, a feature or a feature collection. Use it where any of the three is accepted, such as a list of documents to write. It encodes exactly as the object it wraps, adding nothing around it:
+
+```swift
+let documents: [GeoJSON] = [
+    .geometry(.point(rome)),
+    .feature(Feature(id: "rome", geometry: .point(rome))),
+    .featureCollection(cities),
+]
+
+let first = try JSONEncoder().encode(documents[0])
+// {"type":"Point","coordinates":[12.4964,41.9028]}
+```
+
 ## References
 
 - [GeoJSON](https://geojson.org/) — the GeoJSON format specification (RFC 7946)
