@@ -25,10 +25,12 @@
 import Foundation
 
 public typealias LineString = AtLeast<2, Position>
+public typealias MultiPoint = [Position]
 
 public enum Geometry: Sendable {
     case point(Position)
     case lineString(LineString)
+    case multiPoint(MultiPoint)
 }
 
 extension Geometry: Encodable {
@@ -48,6 +50,10 @@ extension Geometry: Encodable {
         case .lineString(let lineString):
             try container.encode("LineString", forKey: .type)
             try container.encode(lineString, forKey: .coordinates)
+            
+        case .multiPoint(let points):
+            try container.encode("MultiPoint", forKey: .type)
+            try container.encode(points, forKey: .coordinates)
             
         }
     }

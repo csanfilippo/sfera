@@ -37,7 +37,7 @@ Domain types map one-to-one to RFC 7946 concepts, and each type owns its own Geo
 
 - Swift Testing, with raw-identifier test names that state the behaviour (e.g. `` `point coordinates are encoded longitude first` ``). One suite per type, in a file named after the suite.
 - Tests use `import sfera`, not `@testable import`, so they exercise only the public API.
-- Encoding tests compare against a JSON string produced with `.sortedKeys` (via a `geoJSON(_:)` helper). Without `.sortedKeys`, `JSONEncoder`'s key order changes between runs. `JSONEncoder` writes whole-valued doubles without a fractional part (`10`, not `10.0`).
+- Encoding tests compare against a JSON string produced with `.sortedKeys` (via the shared `geoJSON(_:)` helper in `GeometryEncoding.swift`). Without `.sortedKeys`, `JSONEncoder`'s key order changes between runs. `JSONEncoder` writes whole-valued doubles without a fractional part (`10`, not `10.0`).
 - Invariant tests are parameterised and cover both sides of each range, NaN and infinities, plus a test that the boundary values are accepted.
 
 ## Conventions

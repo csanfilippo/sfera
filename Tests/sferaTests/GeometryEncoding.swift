@@ -26,25 +26,8 @@ import sfera
 import Testing
 import Foundation
 
-@Suite struct GeometryPointTests {
-    
-    @Test func `point coordinates are encoded longitude first`() throws {
-        let expectedString = #"{"coordinates":[10,89],"type":"Point"}"#
-        
-        let point: Geometry = .point(try .init(latitude: 89.0, longitude: 10))
-        
-        let jsonString = try geoJSON(point)
-        
-        #expect(jsonString == expectedString)
-    }
-    
-    @Test func `altitude is encoded last when present`() throws {
-        let expectedString = #"{"coordinates":[10,89,99],"type":"Point"}"#
-        
-        let point: Geometry = .point(try .init(latitude: 89.0, longitude: 10, altitude: 99))
-        
-        let jsonString = try geoJSON(point)
-        
-        #expect(jsonString == expectedString)
-    }
+func geoJSON(_ geometry: Geometry) throws -> String {
+    let encoder = JSONEncoder()
+    encoder.outputFormatting = .sortedKeys
+    return try #require(String(data: encoder.encode(geometry), encoding: .utf8))
 }

@@ -26,24 +26,33 @@ import sfera
 import Testing
 import Foundation
 
-@Suite struct GeometryPointTests {
+@Suite struct GeometryMultiPointTests {
     
-    @Test func `point coordinates are encoded longitude first`() throws {
-        let expectedString = #"{"coordinates":[10,89],"type":"Point"}"#
+    @Test func `multi point positions are encoded in order`() throws {
+        let expectedString = #"{"coordinates":[[0,89],[1,90],[1,9]],"type":"MultiPoint"}"#
+
+        let multiPoint: Geometry = .multiPoint(
+            
+                [
+                    try .init(latitude: 89, longitude: 0),
+                    try .init(latitude: 90, longitude: 1),
+                    try .init(latitude: 9, longitude: 1)
+                ]
+            )
         
-        let point: Geometry = .point(try .init(latitude: 89.0, longitude: 10))
-        
-        let jsonString = try geoJSON(point)
+
+        let jsonString = try geoJSON(multiPoint)
         
         #expect(jsonString == expectedString)
     }
     
-    @Test func `altitude is encoded last when present`() throws {
-        let expectedString = #"{"coordinates":[10,89,99],"type":"Point"}"#
+    @Test func `empty multipoint is encoded as an empty array`() throws {
+        let expectedString = #"{"coordinates":[],"type":"MultiPoint"}"#
+
+        let multiPoint: Geometry = .multiPoint([])
         
-        let point: Geometry = .point(try .init(latitude: 89.0, longitude: 10, altitude: 99))
-        
-        let jsonString = try geoJSON(point)
+
+        let jsonString = try geoJSON(multiPoint)
         
         #expect(jsonString == expectedString)
     }

@@ -29,7 +29,7 @@ targets: [
 | Point | ✅ |
 | LineString | ✅ |
 | Polygon | — |
-| MultiPoint | — |
+| MultiPoint | ✅ |
 | MultiLineString | — |
 | MultiPolygon | — |
 | GeometryCollection | — |
@@ -104,6 +104,18 @@ let json = try JSONEncoder().encode(Geometry.lineString(route))
 ```
 
 Further positions can also be passed when you create it: `LineString([rome, florence], [milan])`.
+
+### MultiPoint
+
+A `MultiPoint` is an array of positions. Unlike a `LineString`, it has no minimum size:
+
+```swift
+let cities = Geometry.multiPoint([rome, florence, milan])
+// {"type":"MultiPoint","coordinates":[[12.4964,41.9028],[11.2558,43.7696],[9.19,45.4642]]}
+
+let nothing = Geometry.multiPoint([])
+// {"type":"MultiPoint","coordinates":[]}
+```
 
 ## References
 

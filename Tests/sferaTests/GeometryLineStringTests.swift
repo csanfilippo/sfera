@@ -44,10 +44,4 @@ import Foundation
         
         #expect(jsonString == expectedString)
     }
-    
-    private func geoJSON(_ geometry: Geometry) throws -> String {
-        let encoder = JSONEncoder()
-        encoder.outputFormatting = .sortedKeys
-        return try #require(String(data: encoder.encode(geometry), encoding: .utf8))
-    }
 }
