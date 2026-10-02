@@ -31,12 +31,14 @@ public struct FeatureCollection: Sendable {
     }
 }
 
-extension FeatureCollection: Encodable {
+extension FeatureCollection {
     enum CodingKeys: String, CodingKey {
         case type
         case features
     }
+}
 
+extension FeatureCollection: Encodable {
     public func encode(to encoder: any Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode("FeatureCollection", forKey: .type)

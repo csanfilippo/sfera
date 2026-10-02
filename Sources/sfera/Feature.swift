@@ -40,14 +40,16 @@ public struct Feature: Sendable {
     }
 }
 
-extension Feature: Encodable {
+extension Feature {
     enum CodingKeys: String, CodingKey {
         case type
         case id
         case geometry
         case properties
     }
+}
 
+extension Feature: Encodable {
     // `geometry` and `properties` are required members and are written as null when absent; `id` is optional and omitted.
     public func encode(to encoder: any Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)

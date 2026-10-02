@@ -39,12 +39,15 @@ public enum Geometry: Sendable {
     case multiPolygon(MultiPolygon)
 }
 
-extension Geometry: Encodable {
+extension Geometry {
     enum CodingKeys: String, CodingKey {
         case type
         case coordinates
         case geometries
     }
+}
+
+extension Geometry: Encodable {
     public func encode(to encoder: any Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         
