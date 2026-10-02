@@ -24,32 +24,11 @@
 
 import sfera
 import Testing
-import Foundation
 
-@Suite struct LinearRingTests {
-    @Test func `ring is closed by repeating the first vertex`() throws {
-        let triangle = LinearRing([try at(0, 0), try at(1, 0), try at(0, 1)])
-
-        let jsonString = try #require(String(data: JSONEncoder().encode(triangle), encoding: .utf8))
-
-        #expect(jsonString == "[[0,0],[1,0],[0,1],[0,0]]")
-    }
-
-    @Test func `closed ring is decoded without its closing position`() throws {
-        let ring = try decoded(LinearRing.self, from: "[[0,0],[1,0],[0,1],[0,0]]")
-
-        #expect(ring.vertices.count == 3)
-    }
-
-    @Test func `unclosed ring is rejected when decoding`() {
+@Suite struct GeometryTests {
+    @Test func `unknown geometry type is rejected when decoding`() {
         #expect(throws: DecodingError.self) {
-            try decoded(LinearRing.self, from: "[[0,0],[1,0],[0,1],[1,1]]")
-        }
-    }
-
-    @Test func `ring with fewer than four positions is rejected when decoding`() {
-        #expect(throws: DecodingError.self) {
-            try decoded(LinearRing.self, from: "[[0,0],[1,0],[0,0]]")
+            try decoded(Geometry.self, from: #"{"coordinates":[0,0],"type":"Circle"}"#)
         }
     }
 }

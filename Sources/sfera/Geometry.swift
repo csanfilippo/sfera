@@ -73,3 +73,28 @@ extension Geometry: Encodable {
         }
     }
 }
+
+extension Geometry: Decodable {
+    public init(from decoder: any Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        let type = try container.decode(String.self, forKey: .type)
+        switch type {
+        case "Point":
+            self = .point(try container.decode(Position.self, forKey: .coordinates))
+        case "LineString":
+            self = .lineString(try container.decode(LineString.self, forKey: .coordinates))
+        case "MultiPoint":
+            self = .multiPoint(try container.decode(MultiPoint.self, forKey: .coordinates))
+        case "MultiLineString":
+            self = .multiLineString(try container.decode(MultiLineString.self, forKey: .coordinates))
+        case "Polygon":
+            self = .polygon(try container.decode(Polygon.self, forKey: .coordinates))
+        case "MultiPolygon":
+            self = .multiPolygon(try container.decode(MultiPolygon.self, forKey: .coordinates))
+        case "GeometryCollection":
+            self = .geometryCollection(try container.decode([Geometry].self, forKey: .geometries))
+        default:
+            throw DecodingError.dataCorruptedError(forKey: .type, in: container, debugDescription: "Unknown geometry type \"\(type)\"")
+        }
+    }
+}

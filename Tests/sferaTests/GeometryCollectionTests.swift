@@ -66,4 +66,10 @@ import Foundation
         let jsonString = try geoJSON(geometryCollection)
         #expect(jsonString == #"{"geometries":[{"coordinates":[1,89],"type":"Point"},{"geometries":[{"coordinates":[1,89],"type":"Point"},{"coordinates":[[0,10],[1,11]],"type":"LineString"}],"type":"GeometryCollection"}],"type":"GeometryCollection"}"#)
     }
+
+    @Test func `geometry collection is decoded from its geometries`() throws {
+        let json = #"{"geometries":[{"coordinates":[1,89],"type":"Point"},{"geometries":[],"type":"GeometryCollection"}],"type":"GeometryCollection"}"#
+
+        #expect(try geoJSON(decoded(Geometry.self, from: json)) == json)
+    }
 }

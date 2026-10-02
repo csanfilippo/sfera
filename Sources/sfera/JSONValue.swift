@@ -88,3 +88,22 @@ extension JSONValue: ExpressibleByDictionaryLiteral {
         self = .object(Dictionary(uniqueKeysWithValues: elements))
     }
 }
+
+extension JSONValue: Decodable {
+    public init(from decoder: any Decoder) throws {
+        let container = try decoder.singleValueContainer()
+        if container.decodeNil() {
+            self = .null
+        } else if let bool = try? container.decode(Bool.self) {
+            self = .bool(bool)
+        } else if let number = try? container.decode(Double.self) {
+            self = .number(number)
+        } else if let string = try? container.decode(String.self) {
+            self = .string(string)
+        } else if let array = try? container.decode([JSONValue].self) {
+            self = .array(array)
+        } else {
+            self = .object(try container.decode([String: JSONValue].self))
+        }
+    }
+}

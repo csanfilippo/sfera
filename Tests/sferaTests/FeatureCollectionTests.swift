@@ -40,4 +40,16 @@ import Testing
 
         #expect(try geoJSON(collection) == #"{"features":[],"type":"FeatureCollection"}"#)
     }
+
+    @Test func `feature collection is decoded from its features`() throws {
+        let json = #"{"features":[{"geometry":{"coordinates":[12.5,41.9],"type":"Point"},"id":"rome","properties":null,"type":"Feature"}],"type":"FeatureCollection"}"#
+
+        #expect(try geoJSON(decoded(FeatureCollection.self, from: json)) == json)
+    }
+
+    @Test func `object of another type is rejected when decoding a feature collection`() {
+        #expect(throws: DecodingError.self) {
+            try decoded(FeatureCollection.self, from: #"{"geometry":null,"properties":null,"type":"Feature"}"#)
+        }
+    }
 }

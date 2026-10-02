@@ -42,3 +42,22 @@ extension GeoJSON: Encodable {
         }
     }
 }
+
+extension GeoJSON: Decodable {
+    private enum CodingKeys: String, CodingKey {
+        case type
+    }
+
+    // Anything that is neither a Feature nor a FeatureCollection must be a geometry.
+    public init(from decoder: any Decoder) throws {
+        let type = try decoder.container(keyedBy: CodingKeys.self).decode(String.self, forKey: .type)
+        switch type {
+        case "Feature":
+            self = .feature(try Feature(from: decoder))
+        case "FeatureCollection":
+            self = .featureCollection(try FeatureCollection(from: decoder))
+        default:
+            self = .geometry(try Geometry(from: decoder))
+        }
+    }
+}

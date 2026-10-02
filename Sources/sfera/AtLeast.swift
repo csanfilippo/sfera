@@ -53,3 +53,25 @@ extension AtLeast: Encodable where Element: Encodable {
         try container.encode(contentsOf: self)
     }
 }
+
+extension AtLeast {
+    init?(_ elements: [Element]) {
+        guard elements.count >= minimum else {
+            return nil
+        }
+        self.init(InlineArray { elements[$0] }, Array(elements.dropFirst(minimum)))
+    }
+}
+
+extension AtLeast: Decodable where Element: Decodable {
+    public init(from decoder: any Decoder) throws {
+        let elements = try [Element](from: decoder)
+        guard let atLeast = AtLeast(elements) else {
+            throw DecodingError.dataCorrupted(.init(
+                codingPath: decoder.codingPath,
+                debugDescription: "Expected at least \(minimum) elements, found \(elements.count)"
+            ))
+        }
+        self = atLeast
+    }
+}

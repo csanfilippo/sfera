@@ -63,4 +63,26 @@ import Testing
 
         #expect(try geoJSON(feature) == #"{"geometry":null,"id":42,"properties":null,"type":"Feature"}"#)
     }
+
+    @Test func `feature is decoded with its id, geometry and properties`() throws {
+        let json = #"{"geometry":{"coordinates":[12.5,41.9],"type":"Point"},"id":"rome","properties":{"area":1285.3,"capital":true,"districts":["Centro","Trastevere"],"founded":{"year":-753},"mayor":null,"name":"Rome"},"type":"Feature"}"#
+
+        #expect(try geoJSON(decoded(Feature.self, from: json)) == json)
+    }
+
+    @Test func `numeric id is decoded as a number`() throws {
+        let json = #"{"geometry":null,"id":42,"properties":null,"type":"Feature"}"#
+
+        #expect(try geoJSON(decoded(Feature.self, from: json)) == json)
+    }
+
+    @Test func `missing geometry and properties are decoded as null`() throws {
+        #expect(try geoJSON(decoded(Feature.self, from: #"{"type":"Feature"}"#)) == #"{"geometry":null,"properties":null,"type":"Feature"}"#)
+    }
+
+    @Test func `object of another type is rejected when decoding a feature`() {
+        #expect(throws: DecodingError.self) {
+            try decoded(Feature.self, from: #"{"coordinates":[0,0],"type":"Point"}"#)
+        }
+    }
 }

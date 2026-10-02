@@ -54,4 +54,28 @@ import Foundation
             try Position(latitude: latitude, longitude: longitude)
         }
     }
+
+    @Test func `position is decoded longitude first`() throws {
+        #expect(try decoded(Position.self, from: "[12.5,41.9]") == Position(latitude: 41.9, longitude: 12.5))
+    }
+
+    @Test func `altitude is decoded when present`() throws {
+        #expect(try decoded(Position.self, from: "[12.5,41.9,100]") == Position(latitude: 41.9, longitude: 12.5, altitude: 100))
+    }
+
+    @Test func `elements after the altitude are ignored when decoding`() throws {
+        #expect(try decoded(Position.self, from: "[12.5,41.9,100,7]") == Position(latitude: 41.9, longitude: 12.5, altitude: 100))
+    }
+
+    @Test func `out-of-range position is rejected when decoding`() {
+        #expect(throws: DecodingError.self) {
+            try decoded(Position.self, from: "[0,91]")
+        }
+    }
+
+    @Test func `position with fewer than two numbers is rejected when decoding`() {
+        #expect(throws: DecodingError.self) {
+            try decoded(Position.self, from: "[12.5]")
+        }
+    }
 }

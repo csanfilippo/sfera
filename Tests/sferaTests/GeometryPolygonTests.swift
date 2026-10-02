@@ -82,4 +82,22 @@ import Foundation
 
         #expect(try geoJSON(polygon) == #"{"coordinates":[[[0,0],[2,2],[1,1],[0,0]]],"type":"Polygon"}"#)
     }
+
+    @Test func `polygon is decoded from its exterior ring and holes`() throws {
+        let json = #"{"coordinates":[[[0,0],[10,0],[10,10],[0,10],[0,0]],[[2,2],[2,4],[4,4],[4,2],[2,2]]],"type":"Polygon"}"#
+
+        #expect(try geoJSON(decoded(Geometry.self, from: json)) == json)
+    }
+
+    @Test func `clockwise exterior ring is normalized when decoded`() throws {
+        let clockwise = #"{"coordinates":[[[0,0],[0,10],[10,10],[10,0],[0,0]]],"type":"Polygon"}"#
+
+        #expect(try geoJSON(decoded(Geometry.self, from: clockwise)) == #"{"coordinates":[[[0,0],[10,0],[10,10],[0,10],[0,0]]],"type":"Polygon"}"#)
+    }
+
+    @Test func `polygon without rings is rejected when decoding`() {
+        #expect(throws: DecodingError.self) {
+            try decoded(Geometry.self, from: #"{"coordinates":[],"type":"Polygon"}"#)
+        }
+    }
 }

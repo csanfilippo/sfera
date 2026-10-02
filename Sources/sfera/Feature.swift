@@ -81,3 +81,30 @@ extension Feature.Identifier: ExpressibleByIntegerLiteral {
         self = .number(Double(value))
     }
 }
+
+extension Feature: Decodable {
+    // Missing `geometry` and `properties` are accepted as null, although RFC 7946 requires the members.
+    public init(from decoder: any Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        let type = try container.decode(String.self, forKey: .type)
+        guard type == "Feature" else {
+            throw DecodingError.dataCorruptedError(forKey: .type, in: container, debugDescription: "Expected a Feature, found \"\(type)\"")
+        }
+        self.init(
+            id: try container.decodeIfPresent(Identifier.self, forKey: .id),
+            geometry: try container.decodeIfPresent(Geometry.self, forKey: .geometry),
+            properties: try container.decodeIfPresent([String: JSONValue].self, forKey: .properties)
+        )
+    }
+}
+
+extension Feature.Identifier: Decodable {
+    public init(from decoder: any Decoder) throws {
+        let container = try decoder.singleValueContainer()
+        if let string = try? container.decode(String.self) {
+            self = .string(string)
+        } else {
+            self = .number(try container.decode(Double.self))
+        }
+    }
+}

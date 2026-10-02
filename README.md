@@ -1,7 +1,7 @@
 # sfera
 Sfera (Сфера, "sphere") was a series of Soviet geodetic satellites, launched between 1968 and 1980 to measure the shape of the Earth
 
-`sfera` is a Swift library for building and encoding [GeoJSON](https://geojson.org/) (RFC 7946).
+`sfera` is a Swift library for building, encoding and decoding [GeoJSON](https://geojson.org/) (RFC 7946).
 
 ## Requirements
 
@@ -23,20 +23,18 @@ targets: [
 
 ## Supported GeoJSON
 
-| Object | Encoding |
-|---|---|
-| Position | ✅ |
-| Point | ✅ |
-| LineString | ✅ |
-| Polygon | ✅ |
-| MultiPoint | ✅ |
-| MultiLineString | ✅ |
-| MultiPolygon | ✅ |
-| GeometryCollection | ✅ |
-| Feature | ✅ |
-| FeatureCollection | ✅ |
-
-Decoding is not supported yet.
+| Object | Encoding | Decoding |
+|---|---|---|
+| Position | ✅ | ✅ |
+| Point | ✅ | ✅ |
+| LineString | ✅ | ✅ |
+| Polygon | ✅ | ✅ |
+| MultiPoint | ✅ | ✅ |
+| MultiLineString | ✅ | ✅ |
+| MultiPolygon | ✅ | ✅ |
+| GeometryCollection | ✅ | ✅ |
+| Feature | ✅ | ✅ |
+| FeatureCollection | ✅ | ✅ |
 
 ## Usage
 
@@ -247,6 +245,32 @@ let documents: [GeoJSON] = [
 let first = try JSONEncoder().encode(documents[0])
 // {"type":"Point","coordinates":[12.4964,41.9028]}
 ```
+
+### Decoding
+
+Every type is `Codable`. When the input could be any GeoJSON object, decode `GeoJSON` and switch on what it contains:
+
+```swift
+let json = Data(#"{"type":"Feature","geometry":{"type":"Point","coordinates":[12.4964,41.9028]},"properties":{"name":"Rome"}}"#.utf8)
+
+switch try JSONDecoder().decode(GeoJSON.self, from: json) {
+case .feature(let feature):
+    print(feature.properties?["name"])   // Optional(JSONValue.string("Rome"))
+case .geometry, .featureCollection:
+    break
+}
+```
+
+If you know what to expect, decode it directly: `JSONDecoder().decode(FeatureCollection.self, from: json)`.
+
+Decoding applies the same rules as building values in code, so a decoded value is always valid:
+
+- Out-of-range coordinates and non-finite altitudes are rejected with a `DecodingError` whose underlying error is the `PositionError`.
+- A line string needs at least two positions, and a ring at least four, ending with its first position.
+- A polygon needs an exterior ring. Rings with the wrong winding are accepted and corrected, as RFC 7946 asks of parsers.
+- An unknown geometry `type`, or a `type` that does not match the requested object, is rejected.
+
+Where the input is merely incomplete, decoding is lenient: a Feature without `geometry` or `properties` is read as having `null` for them, and position elements after the altitude are ignored.
 
 ## References
 

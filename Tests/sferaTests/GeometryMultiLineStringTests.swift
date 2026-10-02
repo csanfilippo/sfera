@@ -64,4 +64,10 @@ import Foundation
         
         #expect(jsonString == expectedString)
     }
+
+    @Test func `multi line string is decoded from its line strings`() throws {
+        let json = #"{"coordinates":[[[0,89],[1,90]],[[10,88],[11,17]]],"type":"MultiLineString"}"#
+
+        #expect(try geoJSON(decoded(Geometry.self, from: json)) == json)
+    }
 }

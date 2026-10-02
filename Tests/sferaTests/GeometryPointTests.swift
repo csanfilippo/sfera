@@ -47,4 +47,10 @@ import Foundation
         
         #expect(jsonString == expectedString)
     }
+
+    @Test func `point is decoded from its coordinates`() throws {
+        let json = #"{"coordinates":[10,89,99],"type":"Point"}"#
+
+        #expect(try geoJSON(decoded(Geometry.self, from: json)) == json)
+    }
 }

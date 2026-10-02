@@ -40,3 +40,17 @@ extension Polygon: Encodable {
         try container.encode(contentsOf: holes)
     }
 }
+
+extension Polygon: Decodable {
+    // Rings of either winding are accepted (RFC 7946 §3.1.6) and normalized by `init(exterior:holes:)`.
+    public init(from decoder: any Decoder) throws {
+        let rings = try [LinearRing](from: decoder)
+        guard let exterior = rings.first else {
+            throw DecodingError.dataCorrupted(.init(
+                codingPath: decoder.codingPath,
+                debugDescription: "A polygon needs an exterior ring"
+            ))
+        }
+        self.init(exterior: exterior, holes: Array(rings.dropFirst()))
+    }
+}

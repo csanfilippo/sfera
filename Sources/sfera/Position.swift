@@ -67,3 +67,24 @@ extension Position: Encodable {
         }
     }
 }
+
+extension Position: Equatable {}
+
+extension Position: Decodable {
+    // Elements after the altitude are ignored: RFC 7946 leaves their meaning unspecified.
+    public init(from decoder: any Decoder) throws {
+        var container = try decoder.unkeyedContainer()
+        let longitude = try container.decode(Double.self)
+        let latitude = try container.decode(Double.self)
+        let altitude = try container.decodeIfPresent(Double.self)
+        do {
+            try self.init(latitude: latitude, longitude: longitude, altitude: altitude)
+        } catch {
+            throw DecodingError.dataCorrupted(.init(
+                codingPath: decoder.codingPath,
+                debugDescription: "Invalid position [\(longitude), \(latitude)]",
+                underlyingError: error
+            ))
+        }
+    }
+}

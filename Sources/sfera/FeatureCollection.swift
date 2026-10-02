@@ -43,3 +43,14 @@ extension FeatureCollection: Encodable {
         try container.encode(features, forKey: .features)
     }
 }
+
+extension FeatureCollection: Decodable {
+    public init(from decoder: any Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        let type = try container.decode(String.self, forKey: .type)
+        guard type == "FeatureCollection" else {
+            throw DecodingError.dataCorruptedError(forKey: .type, in: container, debugDescription: "Expected a FeatureCollection, found \"\(type)\"")
+        }
+        self.init(try container.decode([Feature].self, forKey: .features))
+    }
+}

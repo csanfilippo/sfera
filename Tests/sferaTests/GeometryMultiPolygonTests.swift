@@ -43,4 +43,10 @@ import Testing
         
         #expect(try geoJSON(emptyMultiPolygon) == #"{"coordinates":[],"type":"MultiPolygon"}"#)
     }
+
+    @Test func `multi polygon is decoded from its polygons`() throws {
+        let json = #"{"coordinates":[[[[0,0],[10,0],[10,10],[0,10],[0,0]],[[2,2],[2,4],[4,4],[4,2],[2,2]]],[[[20,0],[30,0],[20,10],[20,0]]]],"type":"MultiPolygon"}"#
+
+        #expect(try geoJSON(decoded(Geometry.self, from: json)) == json)
+    }
 }

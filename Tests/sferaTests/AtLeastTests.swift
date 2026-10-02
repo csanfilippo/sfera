@@ -60,4 +60,14 @@ import Foundation
 
         #expect(json == "[1,2,3,4]")
     }
+
+    @Test func `decoded elements keep their order`() throws {
+        #expect(Array(try decoded(AtLeast<2, Int>.self, from: "[1,2,3]")) == [1, 2, 3])
+    }
+
+    @Test func `fewer elements than the minimum are rejected when decoding`() {
+        #expect(throws: DecodingError.self) {
+            try decoded(AtLeast<2, Int>.self, from: "[1]")
+        }
+    }
 }

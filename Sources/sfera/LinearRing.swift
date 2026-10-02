@@ -81,3 +81,23 @@ extension LinearRing: Encodable {
         try container.encode(vertices[0])
     }
 }
+
+extension LinearRing: Decodable {
+    // The encoded ring repeats its first position at the end; the model keeps only the distinct vertices.
+    public init(from decoder: any Decoder) throws {
+        let positions = try [Position](from: decoder)
+        guard positions.count >= 4 else {
+            throw DecodingError.dataCorrupted(.init(
+                codingPath: decoder.codingPath,
+                debugDescription: "A linear ring needs at least four positions, found \(positions.count)"
+            ))
+        }
+        guard positions.first == positions.last else {
+            throw DecodingError.dataCorrupted(.init(
+                codingPath: decoder.codingPath,
+                debugDescription: "A linear ring must end with its first position"
+            ))
+        }
+        self.init(AtLeast(Array(positions.dropLast()))!)
+    }
+}

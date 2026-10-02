@@ -56,4 +56,10 @@ import Foundation
         
         #expect(jsonString == expectedString)
     }
+
+    @Test func `multi point is decoded from its positions`() throws {
+        let json = #"{"coordinates":[[0,89],[1,90]],"type":"MultiPoint"}"#
+
+        #expect(try geoJSON(decoded(Geometry.self, from: json)) == json)
+    }
 }

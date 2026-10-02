@@ -44,4 +44,16 @@ import Foundation
         
         #expect(jsonString == expectedString)
     }
+
+    @Test func `line string is decoded from its positions`() throws {
+        let json = #"{"coordinates":[[0,89],[1,90],[2,88]],"type":"LineString"}"#
+
+        #expect(try geoJSON(decoded(Geometry.self, from: json)) == json)
+    }
+
+    @Test func `line string with a single position is rejected when decoding`() {
+        #expect(throws: DecodingError.self) {
+            try decoded(Geometry.self, from: #"{"coordinates":[[0,89]],"type":"LineString"}"#)
+        }
+    }
 }

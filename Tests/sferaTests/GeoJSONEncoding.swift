@@ -31,3 +31,7 @@ func geoJSON(_ object: some Encodable) throws -> String {
     encoder.outputFormatting = .sortedKeys
     return try #require(String(data: encoder.encode(object), encoding: .utf8))
 }
+
+func decoded<T: Decodable>(_ type: T.Type, from json: String) throws -> T {
+    try JSONDecoder().decode(type, from: Data(json.utf8))
+}

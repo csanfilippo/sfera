@@ -43,4 +43,40 @@ import Testing
 
         #expect(try geoJSON(object) == #"{"features":[],"type":"FeatureCollection"}"#)
     }
+
+    @Test func `geometry object is decoded by its type`() throws {
+        let json = #"{"coordinates":[12.5,41.9],"type":"Point"}"#
+
+        let object = try decoded(GeoJSON.self, from: json)
+
+        guard case .geometry = object else {
+            Issue.record("Expected a geometry, got \(object)")
+            return
+        }
+        #expect(try geoJSON(object) == json)
+    }
+
+    @Test func `feature object is decoded by its type`() throws {
+        let json = #"{"geometry":null,"properties":null,"type":"Feature"}"#
+
+        let object = try decoded(GeoJSON.self, from: json)
+
+        guard case .feature = object else {
+            Issue.record("Expected a feature, got \(object)")
+            return
+        }
+        #expect(try geoJSON(object) == json)
+    }
+
+    @Test func `feature collection object is decoded by its type`() throws {
+        let json = #"{"features":[],"type":"FeatureCollection"}"#
+
+        let object = try decoded(GeoJSON.self, from: json)
+
+        guard case .featureCollection = object else {
+            Issue.record("Expected a feature collection, got \(object)")
+            return
+        }
+        #expect(try geoJSON(object) == json)
+    }
 }
