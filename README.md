@@ -31,7 +31,7 @@ targets: [
 | Polygon | ✅ |
 | MultiPoint | ✅ |
 | MultiLineString | ✅ |
-| MultiPolygon | — |
+| MultiPolygon | ✅ |
 | GeometryCollection | ✅ |
 | Feature | — |
 | FeatureCollection | — |
@@ -164,6 +164,24 @@ let fieldWithPond = Geometry.polygon(Polygon(exterior: field, holes: [pond]))
 ```
 
 RFC 7946 requires exterior rings to be counter-clockwise and holes clockwise (the right-hand rule: walking a ring, the polygon's area is always on your left). `Polygon` applies the rule for you: a ring given in the opposite direction is reversed, keeping its first vertex, so you can give the vertices either way round. The order itself must still follow the boundary, since reversing is the only change made. `exterior` and `holes` return the corrected rings. A ring whose vertices all lie on one line has no direction and is kept as given.
+
+### MultiPolygon
+
+A `MultiPolygon` is an array of polygons, each with its own exterior ring and holes. Like the other Multi* geometries, it can be empty:
+
+```swift
+let orchard = LinearRing([
+    try Position(latitude: 0, longitude: 20),
+    try Position(latitude: 0, longitude: 30),
+    try Position(latitude: 10, longitude: 20),
+])
+
+let farm = Geometry.multiPolygon([
+    Polygon(exterior: field, holes: [pond]),
+    Polygon(exterior: orchard),
+])
+// {"type":"MultiPolygon","coordinates":[[[[0,0],[10,0],[10,10],[0,10],[0,0]],[[2,2],[2,4],[4,4],[4,2],[2,2]]],[[[20,0],[30,0],[20,10],[20,0]]]]}
+```
 
 ### GeometryCollection
 

@@ -82,8 +82,4 @@ import Foundation
 
         #expect(try geoJSON(polygon) == #"{"coordinates":[[[0,0],[2,2],[1,1],[0,0]]],"type":"Polygon"}"#)
     }
-
-    private func at(_ longitude: Double, _ latitude: Double) throws -> Position {
-        try Position(latitude: latitude, longitude: longitude)
-    }
 }

@@ -24,14 +24,23 @@
 
 import sfera
 import Testing
-import Foundation
 
-@Suite struct LinearRingTests {
-    @Test func `ring is closed by repeating the first vertex`() throws {
-        let triangle = LinearRing([try at(0, 0), try at(1, 0), try at(0, 1)])
-
-        let jsonString = try #require(String(data: JSONEncoder().encode(triangle), encoding: .utf8))
-
-        #expect(jsonString == "[[0,0],[1,0],[0,1],[0,0]]")
+@Suite struct GeometryMultiPolygonTests {
+    @Test func `polygons are encoded in order`() throws {
+        let field = Polygon(
+            exterior: LinearRing([try at(0, 0), try at(10, 0), try at(10, 10)], [try at(0, 10)]),
+            holes: [LinearRing([try at(2, 2), try at(2, 4), try at(4, 4)], [try at(4, 2)])]
+        )
+        let triangle = Polygon(exterior: LinearRing([try at(20, 0), try at(30, 0), try at(20, 10)]))
+        
+        let multiPolygon: Geometry = .multiPolygon([field, triangle])
+        
+        #expect(try geoJSON(multiPolygon) == #"{"coordinates":[[[[0,0],[10,0],[10,10],[0,10],[0,0]],[[2,2],[2,4],[4,4],[4,2],[2,2]]],[[[20,0],[30,0],[20,10],[20,0]]]],"type":"MultiPolygon"}"#)
+    }
+    
+    @Test func `empty multi polygon is encoded with empty coordinates`() throws {
+        let emptyMultiPolygon: Geometry = .multiPolygon([])
+        
+        #expect(try geoJSON(emptyMultiPolygon) == #"{"coordinates":[],"type":"MultiPolygon"}"#)
     }
 }

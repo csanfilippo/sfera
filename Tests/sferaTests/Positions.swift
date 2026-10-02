@@ -23,15 +23,8 @@
  */
 
 import sfera
-import Testing
-import Foundation
 
-@Suite struct LinearRingTests {
-    @Test func `ring is closed by repeating the first vertex`() throws {
-        let triangle = LinearRing([try at(0, 0), try at(1, 0), try at(0, 1)])
-
-        let jsonString = try #require(String(data: JSONEncoder().encode(triangle), encoding: .utf8))
-
-        #expect(jsonString == "[[0,0],[1,0],[0,1],[0,0]]")
-    }
+/// Builds a position in GeoJSON coordinate order, so test inputs read like the expected JSON.
+func at(_ longitude: Double, _ latitude: Double) throws -> Position {
+    try Position(latitude: latitude, longitude: longitude)
 }
