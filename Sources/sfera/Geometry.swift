@@ -53,25 +53,25 @@ extension Geometry: Encodable {
         
         switch self {
         case .point(let position):
-            try container.encode("Point", forKey: .type)
+            try container.encode(GeoJSONType.point, forKey: .type)
             try container.encode(position, forKey: .coordinates)
         case .lineString(let lineString):
-            try container.encode("LineString", forKey: .type)
+            try container.encode(GeoJSONType.lineString, forKey: .type)
             try container.encode(lineString, forKey: .coordinates)
         case .multiPoint(let points):
-            try container.encode("MultiPoint", forKey: .type)
+            try container.encode(GeoJSONType.multiPoint, forKey: .type)
             try container.encode(points, forKey: .coordinates)
         case .multiLineString(let lineStrings):
-            try container.encode("MultiLineString", forKey: .type)
+            try container.encode(GeoJSONType.multiLineString, forKey: .type)
             try container.encode(lineStrings, forKey: .coordinates)
         case .geometryCollection(let geometries):
-            try container.encode("GeometryCollection", forKey: .type)
+            try container.encode(GeoJSONType.geometryCollection, forKey: .type)
             try container.encode(geometries, forKey: .geometries)
         case .polygon(let polygon):
-            try container.encode("Polygon", forKey: .type)
+            try container.encode(GeoJSONType.polygon, forKey: .type)
             try container.encode(polygon, forKey: .coordinates)
         case .multiPolygon(let multiPolygon):
-            try container.encode("MultiPolygon", forKey: .type)
+            try container.encode(GeoJSONType.multiPolygon, forKey: .type)
             try container.encode(multiPolygon, forKey: .coordinates)
         }
     }
@@ -80,24 +80,24 @@ extension Geometry: Encodable {
 extension Geometry: Decodable {
     public init(from decoder: any Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        let type = try container.decode(String.self, forKey: .type)
+        let type = try container.decode(GeoJSONType.self, forKey: .type)
         switch type {
-        case "Point":
+        case .point:
             self = .point(try container.decode(Position.self, forKey: .coordinates))
-        case "LineString":
+        case .lineString:
             self = .lineString(try container.decode(LineString.self, forKey: .coordinates))
-        case "MultiPoint":
+        case .multiPoint:
             self = .multiPoint(try container.decode(MultiPoint.self, forKey: .coordinates))
-        case "MultiLineString":
+        case .multiLineString:
             self = .multiLineString(try container.decode(MultiLineString.self, forKey: .coordinates))
-        case "Polygon":
+        case .polygon:
             self = .polygon(try container.decode(Polygon.self, forKey: .coordinates))
-        case "MultiPolygon":
+        case .multiPolygon:
             self = .multiPolygon(try container.decode(MultiPolygon.self, forKey: .coordinates))
-        case "GeometryCollection":
+        case .geometryCollection:
             self = .geometryCollection(try container.decode([Geometry].self, forKey: .geometries))
-        default:
-            throw DecodingError.dataCorruptedError(forKey: .type, in: container, debugDescription: "Unknown geometry type \"\(type)\"")
+        case .feature, .featureCollection:
+            throw DecodingError.dataCorruptedError(forKey: .type, in: container, debugDescription: "Expected a geometry, found \"\(type.rawValue)\"")
         }
     }
 }

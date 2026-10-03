@@ -48,15 +48,14 @@ extension GeoJSON: Decodable {
         case type
     }
 
-    // Anything that is neither a Feature nor a FeatureCollection must be a geometry.
     public init(from decoder: any Decoder) throws {
-        let type = try decoder.container(keyedBy: CodingKeys.self).decode(String.self, forKey: .type)
+        let type = try decoder.container(keyedBy: CodingKeys.self).decode(GeoJSONType.self, forKey: .type)
         switch type {
-        case "Feature":
+        case .feature:
             self = .feature(try Feature(from: decoder))
-        case "FeatureCollection":
+        case .featureCollection:
             self = .featureCollection(try FeatureCollection(from: decoder))
-        default:
+        case .point, .lineString, .polygon, .multiPoint, .multiLineString, .multiPolygon, .geometryCollection:
             self = .geometry(try Geometry(from: decoder))
         }
     }

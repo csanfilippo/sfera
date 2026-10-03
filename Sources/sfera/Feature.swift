@@ -53,7 +53,7 @@ extension Feature: Encodable {
     // `geometry` and `properties` are required members and are written as null when absent; `id` is optional and omitted.
     public func encode(to encoder: any Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
-        try container.encode("Feature", forKey: .type)
+        try container.encode(GeoJSONType.feature, forKey: .type)
         try container.encodeIfPresent(id, forKey: .id)
         try container.encode(geometry, forKey: .geometry)
         try container.encode(properties, forKey: .properties)
@@ -88,9 +88,9 @@ extension Feature: Decodable {
     // Missing `geometry` and `properties` are accepted as null, although RFC 7946 requires the members.
     public init(from decoder: any Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        let type = try container.decode(String.self, forKey: .type)
-        guard type == "Feature" else {
-            throw DecodingError.dataCorruptedError(forKey: .type, in: container, debugDescription: "Expected a Feature, found \"\(type)\"")
+        let type = try container.decode(GeoJSONType.self, forKey: .type)
+        guard type == .feature else {
+            throw DecodingError.dataCorruptedError(forKey: .type, in: container, debugDescription: "Expected a Feature, found \"\(type.rawValue)\"")
         }
         self.init(
             id: try container.decodeIfPresent(Identifier.self, forKey: .id),

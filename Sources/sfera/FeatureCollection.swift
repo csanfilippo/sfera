@@ -41,7 +41,7 @@ extension FeatureCollection {
 extension FeatureCollection: Encodable {
     public func encode(to encoder: any Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
-        try container.encode("FeatureCollection", forKey: .type)
+        try container.encode(GeoJSONType.featureCollection, forKey: .type)
         try container.encode(features, forKey: .features)
     }
 }
@@ -49,9 +49,9 @@ extension FeatureCollection: Encodable {
 extension FeatureCollection: Decodable {
     public init(from decoder: any Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        let type = try container.decode(String.self, forKey: .type)
-        guard type == "FeatureCollection" else {
-            throw DecodingError.dataCorruptedError(forKey: .type, in: container, debugDescription: "Expected a FeatureCollection, found \"\(type)\"")
+        let type = try container.decode(GeoJSONType.self, forKey: .type)
+        guard type == .featureCollection else {
+            throw DecodingError.dataCorruptedError(forKey: .type, in: container, debugDescription: "Expected a FeatureCollection, found \"\(type.rawValue)\"")
         }
         self.init(try container.decode([Feature].self, forKey: .features))
     }
