@@ -26,6 +26,7 @@
 public struct Feature: Sendable {
     public enum Identifier: Sendable {
         case string(String)
+        case integer(Int)
         case number(Double)
     }
 
@@ -66,6 +67,8 @@ extension Feature.Identifier: Encodable {
         switch self {
         case .string(let string):
             try container.encode(string)
+        case .integer(let integer):
+            try container.encode(integer)
         case .number(let number):
             try container.encode(number)
         }
@@ -80,7 +83,7 @@ extension Feature.Identifier: ExpressibleByStringLiteral {
 
 extension Feature.Identifier: ExpressibleByIntegerLiteral {
     public init(integerLiteral value: Int) {
-        self = .number(Double(value))
+        self = .integer(value)
     }
 }
 
@@ -105,6 +108,8 @@ extension Feature.Identifier: Decodable {
         let container = try decoder.singleValueContainer()
         if let string = try? container.decode(String.self) {
             self = .string(string)
+        } else if let integer = try? container.decode(Int.self) {
+            self = .integer(integer)
         } else {
             self = .number(try container.decode(Double.self))
         }

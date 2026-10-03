@@ -85,4 +85,28 @@ import Testing
             try decoded(Feature.self, from: #"{"coordinates":[0,0],"type":"Point"}"#)
         }
     }
+
+    @Test func `integer id beyond double precision survives a round trip`() throws {
+        let json = #"{"geometry":null,"id":1234567890123456789,"properties":null,"type":"Feature"}"#
+
+        #expect(try geoJSON(decoded(Feature.self, from: json)) == json)
+    }
+
+    @Test func `fractional id is decoded as a number`() throws {
+        let json = #"{"geometry":null,"id":4.5,"properties":null,"type":"Feature"}"#
+
+        #expect(try geoJSON(decoded(Feature.self, from: json)) == json)
+    }
+
+    @Test func `integer property beyond double precision survives a round trip`() throws {
+        let json = #"{"geometry":null,"properties":{"count":1234567890123456789},"type":"Feature"}"#
+
+        #expect(try geoJSON(decoded(Feature.self, from: json)) == json)
+    }
+
+    @Test func `integer literals are encoded exactly`() throws {
+        let feature = Feature(id: 1234567890123456789, geometry: nil, properties: ["count": 1234567890123456789])
+
+        #expect(try geoJSON(feature) == #"{"geometry":null,"id":1234567890123456789,"properties":{"count":1234567890123456789},"type":"Feature"}"#)
+    }
 }

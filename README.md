@@ -213,8 +213,8 @@ let city = Feature(
 // {"type":"Feature","id":"rome","geometry":{"type":"Point","coordinates":[12.4964,41.9028]},"properties":{"name":"Rome","population":2800000,"capital":true,"districts":["Centro","Trastevere"]}}
 ```
 
-- `properties` is a JSON object whose values are `JSONValue`s. Strings, numbers, booleans, arrays and nested objects can be written as literals; use `.null` for a null value. Numbers are stored as `Double`, so integers larger than 2^53 lose precision.
-- `id` is a string or a number. When absent, it is left out of the JSON.
+- `properties` is a JSON object whose values are `JSONValue`s. Strings, numbers, booleans, arrays and nested objects can be written as literals; use `.null` for a null value. Whole numbers are stored as `.integer(Int)` and other numbers as `.number(Double)`, so large integers such as 64-bit identifiers are read and written exactly.
+- `id` is a string or a number (`.string`, `.integer` or `.number`, with the same integer handling as properties). When absent, it is left out of the JSON.
 - `geometry` and `properties` are always written. When absent they are `null`, as RFC 7946 requires: `Feature(geometry: nil)` encodes as `{"type":"Feature","geometry":null,"properties":null}`.
 
 ### FeatureCollection

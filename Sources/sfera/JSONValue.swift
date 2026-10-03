@@ -26,7 +26,8 @@
 public enum JSONValue: Sendable {
     case null
     case bool(Bool)
-    // JSON has a single number type; integers beyond 2^53 lose precision as a Double.
+    // JSON has a single number type. Integers are kept apart so values beyond 2^53 survive a round trip exactly.
+    case integer(Int)
     case number(Double)
     case string(String)
     case array([JSONValue])
@@ -41,6 +42,8 @@ extension JSONValue: Encodable {
             try container.encodeNil()
         case .bool(let bool):
             try container.encode(bool)
+        case .integer(let integer):
+            try container.encode(integer)
         case .number(let number):
             try container.encode(number)
         case .string(let string):
@@ -61,7 +64,7 @@ extension JSONValue: ExpressibleByBooleanLiteral {
 
 extension JSONValue: ExpressibleByIntegerLiteral {
     public init(integerLiteral value: Int) {
-        self = .number(Double(value))
+        self = .integer(value)
     }
 }
 
@@ -96,6 +99,8 @@ extension JSONValue: Decodable {
             self = .null
         } else if let bool = try? container.decode(Bool.self) {
             self = .bool(bool)
+        } else if let integer = try? container.decode(Int.self) {
+            self = .integer(integer)
         } else if let number = try? container.decode(Double.self) {
             self = .number(number)
         } else if let string = try? container.decode(String.self) {
