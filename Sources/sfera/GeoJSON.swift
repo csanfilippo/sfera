@@ -23,6 +23,9 @@
  */
 
 /// Any GeoJSON object (RFC 7946 §3): a geometry, a feature, or a feature collection.
+///
+/// Decoding reads the `type` member and produces the matching case, so use this type when the kind of input
+/// is not known in advance. Encoding writes the wrapped object exactly as it would be written on its own.
 public enum GeoJSON: Sendable, Hashable {
     case geometry(Geometry)
     case feature(Feature)

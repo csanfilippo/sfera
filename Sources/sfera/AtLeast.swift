@@ -22,15 +22,25 @@
  SOFTWARE.
  */
 
+/// A collection that always holds at least `minimum` elements.
+///
+/// The first `minimum` elements are stored in a fixed-size `InlineArray`, so an array literal with the wrong count
+/// does not compile. Elements can be appended but never removed, so the minimum always holds.
 public struct AtLeast<let minimum: Int, Element> {
     private let guaranteed: InlineArray<minimum, Element>
     private var rest: [Element]
 
+    /// Creates a collection from its required elements and any that follow them.
+    ///
+    /// - Parameters:
+    ///   - guaranteed: Exactly `minimum` elements.
+    ///   - rest: Any further elements.
     public init(_ guaranteed: InlineArray<minimum, Element>, _ rest: [Element] = []) {
         self.guaranteed = guaranteed
         self.rest = rest
     }
 
+    /// Adds an element at the end.
     public mutating func append(_ element: Element) {
         rest.append(element)
     }

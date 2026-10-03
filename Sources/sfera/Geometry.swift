@@ -22,17 +22,30 @@
  SOFTWARE.
  */
 
+/// Two or more positions joined by straight segments (RFC 7946 §3.1.4).
+///
+/// The minimum is checked at compile time: the first two positions are passed as a fixed-size array,
+/// as in `LineString([rome, florence], [milan])`.
 public typealias LineString = AtLeast<2, Position>
+/// Unconnected positions; may be empty (RFC 7946 §3.1.3).
 public typealias MultiPoint = [Position]
+/// Unconnected line strings; may be empty (RFC 7946 §3.1.5).
 public typealias MultiLineString = [LineString]
+/// Unconnected polygons; may be empty (RFC 7946 §3.1.7).
 public typealias MultiPolygon = [Polygon]
 
+/// A GeoJSON geometry object (RFC 7946 §3.1).
+///
+/// Every kind encodes as `{"type": …, "coordinates": …}`, except ``geometryCollection(_:)``,
+/// whose members are written under `geometries`.
 public enum Geometry: Sendable, Hashable {
     case point(Position)
     case lineString(LineString)
     case multiPoint(MultiPoint)
     case multiLineString(MultiLineString)
+    /// Geometries of any kind, possibly none. Nested collections are allowed, although RFC 7946 advises against them.
     case geometryCollection([Geometry])
+    /// An area bounded by an exterior ring, with optional holes.
     case polygon(Polygon)
     case multiPolygon(MultiPolygon)
 }

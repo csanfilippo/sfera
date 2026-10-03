@@ -22,13 +22,24 @@
  SOFTWARE.
  */
 
+/// A closed boundary through three or more vertices (RFC 7946 §3.1.6).
+///
+/// A ring stores each vertex once and closes itself when encoded, by repeating the first vertex at the end,
+/// so an open ring cannot be produced. Decoding requires a closed ring of at least four positions
+/// and drops the repeated closing position.
 public struct LinearRing: Sendable, Hashable {
+    /// The distinct vertices in boundary order, without the closing position.
     public let vertices: AtLeast<3, Position>
     
     init(_ vertices: AtLeast<3, Position>) {
         self.vertices = vertices
     }
 
+    /// Creates a ring from its vertices in boundary order, without repeating the first one at the end.
+    ///
+    /// - Parameters:
+    ///   - vertices: The first three vertices.
+    ///   - rest: Any further vertices.
     public init(_ vertices: InlineArray<3, Position>, _ rest: [Position] = []) {
         self.init(AtLeast(vertices, rest))
     }

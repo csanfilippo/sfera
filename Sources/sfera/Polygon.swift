@@ -22,11 +22,18 @@
  SOFTWARE.
  */
 
+/// An area bounded by an exterior ring, with optional holes (RFC 7946 §3.1.6).
+///
+/// Rings follow the right-hand rule: walking any ring, the polygon's area is on the left, so the exterior
+/// runs counter-clockwise and holes run clockwise. ``init(exterior:holes:)`` reverses a ring given in the other
+/// direction, keeping its first vertex; a ring whose vertices are collinear has no direction and is kept as given.
 public struct Polygon: Sendable, Hashable {
+    /// The outer boundary, counter-clockwise.
     public let exterior: LinearRing
+    /// Areas cut out of the polygon, each clockwise.
     public let holes: [LinearRing]
     
-    // RFC 7946 right-hand rule: exterior rings counter-clockwise, holes clockwise.
+    /// Creates a polygon, reversing any ring that does not follow the right-hand rule.
     public init(exterior: LinearRing, holes: [LinearRing] = []) {
         self.exterior = exterior.oriented(.counterClockwise)
         self.holes = holes.map { $0.oriented(.clockwise) }

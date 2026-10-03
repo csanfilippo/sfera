@@ -52,6 +52,7 @@ Domain types map one-to-one to RFC 7946 concepts, and each type owns its own Geo
 
 - Every Swift file starts with the MIT license header (copy it from an existing file).
 - One main type per file, named after the type; closely related types (e.g. `PositionError`) live with it.
+- Public API has `///` doc comments that state the domain rules a caller cannot infer from names and types (ranges, units, minimum counts, closing and winding rules, null and number handling). Members whose name says it all are left undocumented. When behaviour changes, update the doc comment in the same change.
 - The README documents usage for every supported GeoJSON capability. When a capability is added (a new geometry, Feature, decoding, …), update its row in the "Supported GeoJSON" table and add a Usage example in the same change. Verify the example compiles and that the output shown matches what `JSONEncoder` actually produces.
 - Commit messages: lowercase, imperative, short (e.g. `define Point geometry`).
 - The repository owner drives TDD by writing tests; when asked to "check" work, review it and run `swift test` rather than editing unprompted.

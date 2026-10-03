@@ -23,17 +23,26 @@
  */
 
 /// A spatially bounded thing (RFC 7946 §3.2): a geometry, its properties, and an optional identifier.
+///
+/// `geometry` and `properties` are always encoded, as `null` when absent; `id` is left out when absent.
 public struct Feature: Sendable, Hashable {
+    /// A feature identifier: a string or a number.
     public enum Identifier: Sendable, Hashable {
         case string(String)
+        /// A whole number, kept exact up to `Int.max`. Integer literals produce this case.
         case integer(Int)
+        /// A number with a fractional part, or too large for `Int`.
         case number(Double)
     }
 
+    /// The feature's identifier, if it has one.
     public let id: Identifier?
+    /// Where the feature is, or `nil` for an unlocated feature.
     public let geometry: Geometry?
+    /// Arbitrary data about the feature, or `nil` if it has none.
     public let properties: [String: JSONValue]?
 
+    /// Creates a feature. Pass `nil` as the geometry for a feature without a location.
     public init(id: Identifier? = nil, geometry: Geometry?, properties: [String: JSONValue]? = nil) {
         self.id = id
         self.geometry = geometry

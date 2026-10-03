@@ -23,11 +23,15 @@
  */
 
 /// Any JSON value, as allowed in a Feature's `properties`.
+///
+/// Values can be written as literals, as in `["name": "Rome", "population": 2_800_000, "tags": ["capital"]]`.
+/// Write a null value as ``null``: `JSONValue` deliberately does not accept `nil`, which would be confused with `Optional`.
 public enum JSONValue: Sendable, Hashable {
     case null
     case bool(Bool)
-    // JSON has a single number type. Integers are kept apart so values beyond 2^53 survive a round trip exactly.
+    /// A whole number, kept exact up to `Int.max`. Integer literals and whole numbers in decoded JSON produce this case.
     case integer(Int)
+    /// A number with a fractional part, or too large for `Int`. `.integer(1)` and `.number(1.0)` are different values.
     case number(Double)
     case string(String)
     case array([JSONValue])
