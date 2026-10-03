@@ -100,4 +100,11 @@ import Foundation
             try decoded(Geometry.self, from: #"{"coordinates":[],"type":"Polygon"}"#)
         }
     }
+
+    @Test func `polygons built from oppositely wound rings are equal`() throws {
+        let counterClockwise = Polygon(exterior: LinearRing([try at(0, 0), try at(10, 0), try at(10, 10)], [try at(0, 10)]))
+        let clockwise = Polygon(exterior: LinearRing([try at(0, 0), try at(0, 10), try at(10, 10)], [try at(10, 0)]))
+
+        #expect(counterClockwise == clockwise)
+    }
 }

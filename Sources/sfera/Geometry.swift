@@ -22,14 +22,12 @@
  SOFTWARE.
  */
 
-import Foundation
-
 public typealias LineString = AtLeast<2, Position>
 public typealias MultiPoint = [Position]
 public typealias MultiLineString = [LineString]
 public typealias MultiPolygon = [Polygon]
 
-public enum Geometry: Sendable {
+public enum Geometry: Sendable, Hashable {
     case point(Position)
     case lineString(LineString)
     case multiPoint(MultiPoint)

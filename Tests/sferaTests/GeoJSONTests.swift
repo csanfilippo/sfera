@@ -79,4 +79,10 @@ import Testing
         }
         #expect(try geoJSON(object) == json)
     }
+
+    @Test func `decoded object equals the object it was encoded from`() throws {
+        let object: GeoJSON = .featureCollection(FeatureCollection([Feature(id: 7, geometry: nil)]))
+
+        #expect(try decoded(GeoJSON.self, from: geoJSON(object)) == object)
+    }
 }

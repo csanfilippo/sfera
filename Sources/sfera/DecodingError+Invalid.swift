@@ -22,25 +22,9 @@
  SOFTWARE.
  */
 
-import sfera
-import Testing
-
-@Suite struct GeometryTests {
-    @Test func `unknown geometry type is rejected when decoding`() {
-        #expect(throws: DecodingError.self) {
-            try decoded(Geometry.self, from: #"{"coordinates":[0,0],"type":"Circle"}"#)
-        }
-    }
-
-    @Test func `decoded geometry equals the geometry it was encoded from`() throws {
-        let lineString: Geometry = .lineString(LineString([try at(0, 89), try at(1, 90)], [try at(2, 88)]))
-
-        #expect(try decoded(Geometry.self, from: geoJSON(lineString)) == lineString)
-    }
-
-    @Test func `geometries of different kinds are not equal`() throws {
-        let position = try at(0, 89)
-
-        #expect(Geometry.point(position) != Geometry.multiPoint([position]))
+extension DecodingError {
+    /// The input is well-formed JSON but violates a GeoJSON rule at the decoder's current coding path.
+    static func invalid(_ description: String, in decoder: any Decoder, underlyingError: (any Error)? = nil) -> DecodingError {
+        .dataCorrupted(.init(codingPath: decoder.codingPath, debugDescription: description, underlyingError: underlyingError))
     }
 }

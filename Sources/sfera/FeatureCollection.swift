@@ -23,7 +23,7 @@
  */
 
 /// A collection of features (RFC 7946 §3.3). It may be empty.
-public struct FeatureCollection: Sendable {
+public struct FeatureCollection: Sendable, Hashable {
     public let features: [Feature]
 
     public init(_ features: [Feature]) {

@@ -23,7 +23,7 @@ There is no linter configured.
 ## Platform constraints
 
 - Swift tools 6.4, deployment targets iOS/macOS/watchOS/tvOS 26. The 26 minimum is required: `AtLeast` uses value generics (`let minimum: Int`) and `InlineArray`, which need the OS 26 Swift runtime. Do not lower the platforms without removing those.
-- Public domain types are `Sendable`.
+- Public domain types are `Sendable` and `Hashable` (value objects with value equality; `AtLeast` conforms conditionally on its element, comparing elements regardless of how they are split between storage). The library target imports only the standard library: `Codable` needs no Foundation, which is only used by tests (and callers) for `JSONEncoder`/`JSONDecoder`.
 
 ## Architecture
 
@@ -37,6 +37,7 @@ Domain types map one-to-one to RFC 7946 concepts, and each type owns its own Geo
 - `FeatureCollection` (RFC 7946 §3.3) wraps an ordered, possibly empty `[Feature]` and encodes it under `features`.
 - `GeoJSON` (RFC 7946 §3) is the top-level enum over `.geometry`, `.feature` and `.featureCollection`. It encodes transparently as the wrapped object (each already writes its own `type`), so it adds no JSON structure. It is the entry point for decoding input of unknown kind: it reads `type` and dispatches to `Feature`, `FeatureCollection`, or otherwise `Geometry`.
 - The `type` member values live only in the internal `GeoJSONType` enum (RFC 7946 §1.4 "GeoJSON types"). Encoders write a `GeoJSONType` case and decoders decode one, so no type name appears as a string literal elsewhere; switches over it are exhaustive, so adding a type forces every decoder to handle it.
+- Decoding validation errors are built with the internal `DecodingError.invalid(_:in:underlyingError:)` helper (`DecodingError+Invalid.swift`), which attaches the decoder's coding path.
 - Decoding (`Decodable` on every type) enforces the same invariants as the initializers, so a decoded value is always valid: invalid positions surface as `DecodingError.dataCorrupted` with the `PositionError` as underlying error; `AtLeast` checks its minimum count; `LinearRing` requires four or more positions with first == last (it uses `Position: Equatable`) and drops the closing position; `Polygon` requires an exterior ring and normalizes winding instead of rejecting it (RFC 7946 asks parsers not to reject); `Feature`, `FeatureCollection` and `Geometry` check `type`. Missing structure is tolerated (robustness principle): Feature `geometry`/`properties` may be absent, and position elements after the altitude are ignored. Decoding tests live in each type's suite and use the shared `decoded(_:from:)` helper, usually as a round trip through `geoJSON(_:)`.
 - `AtLeast<minimum, Element>` is a collection guaranteed to hold at least `minimum` elements: the first `minimum` live in an `InlineArray`, the rest in an `Array`, and only the tail can grow. It conditionally conforms to `Sendable` and `Codable` (as a flat array of its elements; decoding fails below `minimum`). `LineString` is `AtLeast<2, Position>`, so the RFC's "two or more positions" rule is enforced at compile time.
 

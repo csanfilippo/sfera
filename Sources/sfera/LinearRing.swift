@@ -22,10 +22,10 @@
  SOFTWARE.
  */
 
-public struct LinearRing: Sendable {
+public struct LinearRing: Sendable, Hashable {
     public let vertices: AtLeast<3, Position>
     
-    public init(_ vertices: AtLeast<3, Position>) {
+    init(_ vertices: AtLeast<3, Position>) {
         self.vertices = vertices
     }
 
@@ -87,16 +87,10 @@ extension LinearRing: Decodable {
     public init(from decoder: any Decoder) throws {
         let positions = try [Position](from: decoder)
         guard positions.count >= 4 else {
-            throw DecodingError.dataCorrupted(.init(
-                codingPath: decoder.codingPath,
-                debugDescription: "A linear ring needs at least four positions, found \(positions.count)"
-            ))
+            throw DecodingError.invalid("A linear ring needs at least four positions, found \(positions.count)", in: decoder)
         }
         guard positions.first == positions.last else {
-            throw DecodingError.dataCorrupted(.init(
-                codingPath: decoder.codingPath,
-                debugDescription: "A linear ring must end with its first position"
-            ))
+            throw DecodingError.invalid("A linear ring must end with its first position", in: decoder)
         }
         self.init(AtLeast(Array(positions.dropLast()))!)
     }

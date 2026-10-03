@@ -23,7 +23,7 @@
  */
 
 public struct AtLeast<let minimum: Int, Element> {
-    private var guaranteed: InlineArray<minimum, Element>
+    private let guaranteed: InlineArray<minimum, Element>
     private var rest: [Element]
 
     public init(_ guaranteed: InlineArray<minimum, Element>, _ rest: [Element] = []) {
@@ -47,6 +47,21 @@ extension AtLeast: RandomAccessCollection {
 
 extension AtLeast: Sendable where Element: Sendable {}
 
+extension AtLeast: Equatable where Element: Equatable {
+    public static func == (lhs: AtLeast, rhs: AtLeast) -> Bool {
+        lhs.elementsEqual(rhs)
+    }
+}
+
+extension AtLeast: Hashable where Element: Hashable {
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(count)
+        for element in self {
+            hasher.combine(element)
+        }
+    }
+}
+
 extension AtLeast: Encodable where Element: Encodable {
     public func encode(to encoder: any Encoder) throws {
         var container = encoder.unkeyedContainer()
@@ -67,10 +82,7 @@ extension AtLeast: Decodable where Element: Decodable {
     public init(from decoder: any Decoder) throws {
         let elements = try [Element](from: decoder)
         guard let atLeast = AtLeast(elements) else {
-            throw DecodingError.dataCorrupted(.init(
-                codingPath: decoder.codingPath,
-                debugDescription: "Expected at least \(minimum) elements, found \(elements.count)"
-            ))
+            throw DecodingError.invalid("Expected at least \(minimum) elements, found \(elements.count)", in: decoder)
         }
         self = atLeast
     }

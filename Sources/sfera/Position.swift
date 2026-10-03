@@ -22,8 +22,6 @@
  SOFTWARE.
  */
 
-import Foundation
-
 public enum PositionError: Error {
     case latitudeOutOfRange
     case longitudeOutOfRange
@@ -68,7 +66,7 @@ extension Position: Encodable {
     }
 }
 
-extension Position: Equatable {}
+extension Position: Hashable {}
 
 extension Position: Decodable {
     // Elements after the altitude are ignored: RFC 7946 leaves their meaning unspecified.
@@ -80,11 +78,7 @@ extension Position: Decodable {
         do {
             try self.init(latitude: latitude, longitude: longitude, altitude: altitude)
         } catch {
-            throw DecodingError.dataCorrupted(.init(
-                codingPath: decoder.codingPath,
-                debugDescription: "Invalid position [\(longitude), \(latitude)]",
-                underlyingError: error
-            ))
+            throw DecodingError.invalid("Invalid position [\(longitude), \(latitude)]", in: decoder, underlyingError: error)
         }
     }
 }

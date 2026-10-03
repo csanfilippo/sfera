@@ -109,4 +109,14 @@ import Testing
 
         #expect(try geoJSON(feature) == #"{"geometry":null,"id":1234567890123456789,"properties":{"count":1234567890123456789},"type":"Feature"}"#)
     }
+
+    @Test func `decoded feature equals the feature it was encoded from`() throws {
+        let feature = Feature(id: "rome", geometry: .point(try at(12.5, 41.9)), properties: ["name": "Rome", "tags": ["capital"]])
+
+        #expect(try decoded(Feature.self, from: geoJSON(feature)) == feature)
+    }
+
+    @Test func `integer and fractional numbers are different values`() {
+        #expect(JSONValue.integer(1) != JSONValue.number(1.0))
+    }
 }

@@ -23,7 +23,7 @@
  */
 
 /// Any JSON value, as allowed in a Feature's `properties`.
-public enum JSONValue: Sendable {
+public enum JSONValue: Sendable, Hashable {
     case null
     case bool(Bool)
     // JSON has a single number type. Integers are kept apart so values beyond 2^53 survive a round trip exactly.

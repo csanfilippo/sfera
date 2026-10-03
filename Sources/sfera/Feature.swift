@@ -23,8 +23,8 @@
  */
 
 /// A spatially bounded thing (RFC 7946 §3.2): a geometry, its properties, and an optional identifier.
-public struct Feature: Sendable {
-    public enum Identifier: Sendable {
+public struct Feature: Sendable, Hashable {
+    public enum Identifier: Sendable, Hashable {
         case string(String)
         case integer(Int)
         case number(Double)

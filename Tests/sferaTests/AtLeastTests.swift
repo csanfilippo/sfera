@@ -70,4 +70,15 @@ import Foundation
             try decoded(AtLeast<2, Int>.self, from: "[1]")
         }
     }
+
+    @Test func `collections with the same elements are equal`() {
+        #expect(AtLeast<2, Int>([1, 2], [3]) == AtLeast<2, Int>([1, 2], [3]))
+        #expect(AtLeast<2, Int>([1, 2], [3]) != AtLeast<2, Int>([1, 2]))
+    }
+
+    @Test func `equal collections have the same hash`() {
+        let collections: Set = [AtLeast<2, Int>([1, 2], [3]), AtLeast<2, Int>([1, 2], [3])]
+
+        #expect(collections.count == 1)
+    }
 }

@@ -22,7 +22,7 @@
  SOFTWARE.
  */
 
-public struct Polygon: Sendable {
+public struct Polygon: Sendable, Hashable {
     public let exterior: LinearRing
     public let holes: [LinearRing]
     
@@ -46,10 +46,7 @@ extension Polygon: Decodable {
     public init(from decoder: any Decoder) throws {
         let rings = try [LinearRing](from: decoder)
         guard let exterior = rings.first else {
-            throw DecodingError.dataCorrupted(.init(
-                codingPath: decoder.codingPath,
-                debugDescription: "A polygon needs an exterior ring"
-            ))
+            throw DecodingError.invalid("A polygon needs an exterior ring", in: decoder)
         }
         self.init(exterior: exterior, holes: Array(rings.dropFirst()))
     }

@@ -23,7 +23,7 @@
  */
 
 /// Any GeoJSON object (RFC 7946 §3): a geometry, a feature, or a feature collection.
-public enum GeoJSON: Sendable {
+public enum GeoJSON: Sendable, Hashable {
     case geometry(Geometry)
     case feature(Feature)
     case featureCollection(FeatureCollection)
