@@ -3,7 +3,14 @@ name: Tests
 on:
   push:
     branches: [main]
+    paths: &tested
+      - Package.swift
+      - Sources/**
+      - Tests/**
+      - Makefile
+      - .github/workflows/tests.yml
   pull_request:
+    paths: *tested
 
 jobs:
   docker:
