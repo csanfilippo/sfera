@@ -42,7 +42,7 @@ let document = try JSONDecoder().decode(GeoJSON.self, from: data)
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/csanfilippo/sfera.git", branch: "main"),
+    .package(url: "https://github.com/csanfilippo/sfera.git", from: "0.1.0"),
 ],
 targets: [
     .target(name: "YourTarget", dependencies: [
