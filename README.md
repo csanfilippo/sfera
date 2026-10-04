@@ -6,7 +6,7 @@
 </h1>
 
 ![Swift 6.4](https://img.shields.io/badge/Swift-6.4-F05138?logo=swift&logoColor=white)
-![Platforms](https://img.shields.io/badge/platforms-iOS%20·%20macOS%20·%20watchOS%20·%20tvOS%2026%20·%20Linux%20·%20Wasm-blue)
+![Platforms](https://img.shields.io/badge/platforms-iOS%2026%20·%20macOS%2026%20·%20watchOS%2026%20·%20tvOS%2026%20·%20Linux%20·%20Wasm-blue)
 [![Tests](https://github.com/csanfilippo/sfera/actions/workflows/tests.yml/badge.svg)](https://github.com/csanfilippo/sfera/actions/workflows/tests.yml)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
