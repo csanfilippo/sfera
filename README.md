@@ -1,7 +1,8 @@
 # sfera
 
 ![Swift 6.4](https://img.shields.io/badge/Swift-6.4-F05138?logo=swift&logoColor=white)
-![Platforms](https://img.shields.io/badge/platforms-iOS%20·%20macOS%20·%20watchOS%20·%20tvOS%2026-blue)
+![Platforms](https://img.shields.io/badge/platforms-iOS%20·%20macOS%20·%20watchOS%20·%20tvOS%2026%20·%20Linux%20·%20Wasm-blue)
+[![Tests](https://github.com/csanfilippo/sfera/actions/workflows/tests.yml/badge.svg)](https://github.com/csanfilippo/sfera/actions/workflows/tests.yml)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
 **GeoJSON for Swift, valid by construction.**
@@ -13,7 +14,7 @@
 - Rings close themselves, and polygons follow the right-hand rule automatically.
 - Large integer identifiers and properties survive a round trip exactly.
 
-Every type is `Codable`, `Sendable` and `Hashable`, and the library depends on nothing but the Swift standard library.
+Every type is `Codable`, `Sendable` and `Hashable`. There are no third-party dependencies, and the sources use only the Swift standard library.
 
 ## Quick start
 
@@ -32,7 +33,7 @@ let document = try JSONDecoder().decode(GeoJSON.self, from: data)
 
 ## Installation
 
-`sfera` requires Swift 6.4 and iOS, macOS, watchOS or tvOS 26. Add it with Swift Package Manager:
+`sfera` requires Swift 6.4. It runs on iOS, macOS, watchOS and tvOS 26, on Linux, and on WebAssembly (WASI) with the full Swift SDK for Wasm; Embedded Swift is not supported, because it has no `Codable`. Add it with Swift Package Manager:
 
 ```swift
 dependencies: [
@@ -62,7 +63,7 @@ A `Position` is a latitude, a longitude and an optional altitude in meters. Valu
 
 ```swift
 do {
-    let nowhere = try Position(latitude: 91, longitude: 0)
+    _ = try Position(latitude: 91, longitude: 0)
 } catch .latitudeOutOfRange {
     // latitudes run from -90 to 90
 }
@@ -167,6 +168,8 @@ let cities = FeatureCollection([city, Feature(id: 2, geometry: .point(milan))])
 `GeoJSON` holds a geometry, a feature or a feature collection, and encodes exactly as the object it holds. Decode it when the input could be any of the three:
 
 ```swift
+let data = try JSONEncoder().encode(cities)
+
 switch try JSONDecoder().decode(GeoJSON.self, from: data) {
 case .geometry(let geometry):
     print(geometry)
@@ -193,12 +196,23 @@ Decoding enforces the same rules as the initializers, so a decoded value is alwa
 | Ring wound the wrong way | accepted and corrected, as RFC 7946 asks of parsers |
 | Feature without `geometry` or `properties` | accepted, as `null` |
 | Position elements after the altitude | ignored |
+| `bbox` and foreign members | ignored, so they are lost in a round trip |
 
 Rejections are thrown as `DecodingError`, with the coding path of the offending value.
 
 ### Output
 
-`JSONEncoder` does not guarantee the order of object keys; set `outputFormatting = .sortedKeys` for stable output. To check what `sfera` produces against the specification, use the [GeoJSON validator](https://www.itb.ec.europa.eu/json/geojson/upload) of the European Commission's Interoperability Test Bed.
+`JSONEncoder` does not guarantee the order of object keys; set `outputFormatting = .sortedKeys` for stable output. JSON has no NaN or infinity, so encoding a `.number` that holds one throws. To check what `sfera` produces against the specification, use the [GeoJSON validator](https://www.itb.ec.europa.eu/json/geojson/upload) of the European Commission's Interoperability Test Bed.
+
+## Development
+
+```sh
+swift test          # macOS, with Xcode
+make test-linux     # Linux, in Docker
+make test-wasm      # WebAssembly (WASI), in Docker
+```
+
+CI runs all three on every push to `main` and on pull requests.
 
 ## About the name
 

@@ -1,0 +1,26 @@
+name: Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  docker:
+    name: ${{ matrix.platform }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: [linux, wasm]
+    steps:
+      - uses: actions/checkout@v7
+      - run: make test-${{ matrix.platform }}
+
+  macos:
+    name: macos
+    # Swift 6.4 ships with Xcode 27, which GitHub provides only on this (preview) image.
+    runs-on: xcode-27
+    steps:
+      - uses: actions/checkout@v7
+      - run: swift test

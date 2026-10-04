@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project
 
-`sfera` is a Swift package for modelling, encoding and decoding GeoJSON as defined by [RFC 7946](https://geojson.org/). Encoded output can be checked manually against the [EC Interoperability Test Bed GeoJSON validator](https://www.itb.ec.europa.eu/json/geojson/upload).
+`sfera` is a Swift package for modelling, encoding and decoding GeoJSON as defined by [RFC 7946](https://datatracker.ietf.org/doc/html/rfc7946). Encoded output can be checked manually against the [EC Interoperability Test Bed GeoJSON validator](https://www.itb.ec.europa.eu/json/geojson/upload).
 
 ## Commands
 
@@ -18,7 +18,9 @@ make test-linux                                   # full suite on Linux, in Dock
 make test-wasm                                    # full suite on wasm32, in Docker
 ```
 
-The `make` targets run in the official `swift` image so no second toolchain is installed locally (Xcode stays the only one). They need Docker running; the Wasm SDK is installed once into the `sfera-swiftpm` Docker volume. `SWIFT_VERSION` and the Wasm SDK checksum in the `Makefile` must be bumped together. `--filter` does not work on wasm32 (SwiftPM tries to execute the `.wasm` to list tests), so `test-wasm` always runs the full suite; it also passes `--disable-xctest`, because the XCTest runner traps in Foundation's `Bundle.main` on WASI even with no XCTest tests. Both targets mount the sources read-only and build in the container, so they never touch the local `.build`.
+- The `make` targets run in the official `swift` image so no second toolchain is installed locally (Xcode stays the only one). They need Docker running, mount the sources read-only and build inside the container, so they never touch the local `.build`. The Wasm SDK is installed once into the `sfera-swiftpm` Docker volume. `SWIFT_VERSION` and the Wasm SDK checksum in the `Makefile` must be bumped together.
+- `test-wasm` always runs the full suite: `--filter` does not work on wasm32 (SwiftPM tries to execute the `.wasm` to list tests). It passes `--disable-xctest`, because the XCTest runner traps in Foundation's `Bundle.main` on WASI even with no XCTest tests.
+- CI (`.github/workflows/tests.yml`) runs on pushes to `main` and on pull requests. Its Linux and Wasm jobs call the same `make` targets, so the `Makefile` is the only place their Swift version lives; its macOS job runs `swift test` with the default Xcode of the `xcode-27` runner image (preview), the first one shipping Swift 6.4.
 
 Test IDs have the form ``sferaTests.PositionTests/`latitude outside -90…90 is rejected`(latitude:)``. Raw-identifier names keep their backticks in the ID, so a filter on the name must include the leading backtick; a bare word also matches parameter labels.
 
@@ -27,7 +29,9 @@ There is no linter configured.
 ## Platform constraints
 
 - Swift tools 6.4, deployment targets iOS/macOS/watchOS/tvOS 26. The 26 minimum is required: `AtLeast` uses value generics (`let minimum: Int`) and `InlineArray`, which need the OS 26 Swift runtime. Do not lower the platforms without removing those.
-- Public domain types are `Sendable` and `Hashable` (value objects with value equality; `AtLeast` conforms conditionally on its element, comparing elements regardless of how they are split between storage). The library target imports only the standard library: `Codable` needs no Foundation, which is only used by tests (and callers) for `JSONEncoder`/`JSONDecoder`.
+- Linux and wasm32 (WASI, full Swift SDK) are supported and tested in CI. Embedded Swift is not: it has no `Codable`. `Int` is 32 bits on wasm32 (and arm64_32 watchOS), so a value that must hold 64 bits uses `Int64`, never `Int`.
+- Public domain types are `Sendable` and `Hashable` (value objects with value equality; `AtLeast` conforms conditionally on its element, comparing elements regardless of how they are split between storage). The library sources import only the standard library: `Codable` needs no Foundation, which is only used by tests (and callers) for `JSONEncoder`/`JSONDecoder`.
+- `Sources/sfera/PrivacyInfo.xcprivacy` is an Apple privacy manifest that declares nothing (no tracking, no required-reason APIs, no collected data). `sfera` is not required to ship one; it is kept so Apple-platform consumers see an explicit declaration. Being a resource, it makes SwiftPM generate a `Bundle.module` accessor that imports Foundation. `Package.swift` adds it only under `#if canImport(Darwin)`, which is evaluated on the build host, not the target: SwiftPM has no per-platform resources, so every Apple build (always hosted on macOS) gets it, and so does a Linux or Wasm cross-build from a Mac. The latter is harmless: verified that a wasm32 build with the resource passes the suite, and nothing reads `Bundle.module`.
 
 ## Architecture
 
@@ -58,11 +62,11 @@ Domain types map one-to-one to RFC 7946 concepts, and each type owns its own Geo
 - Every Swift file starts with the MIT license header (copy it from an existing file).
 - One main type per file, named after the type; closely related types (e.g. `PositionError`) live with it.
 - Public API has `///` doc comments that state the domain rules a caller cannot infer from names and types (ranges, units, minimum counts, closing and winding rules, null and number handling). Members whose name says it all are left undocumented. When behaviour changes, update the doc comment in the same change.
-- The README documents every supported GeoJSON capability. When one is added or changed (a new geometry, a Feature member, a decoding rule, …), update the README in the same change: the Geometries table for geometry types, the Decoding rules table for decoding behaviour, and the Guide for usage. Guide snippets build on each other (the four city positions, `route`, `field`, `pond`, `cities`, `data`), so declare each name once. Before committing, paste all snippets in order into a temporary test file in `Tests/sferaTests`, run it with `swift test --filter`, print the encoded output, then delete the file. Output comments must match what `JSONEncoder` actually produces (shown `type`-first).
+- The README documents every supported GeoJSON capability. When one is added or changed (a new geometry, a Feature member, a decoding rule, …), update the README in the same change: the Geometries table for geometry types, the Decoding rules table for decoding behaviour, the Guide for usage, and the Installation section and platform badge for platforms. The Quick start is standalone; Guide snippets build on each other (the four city positions, `route`, `field`, `pond`, `cities`, `data`), so declare each name once within the Guide. Before committing, paste the Quick start and the Guide snippets (in order) into separate tests into a temporary test file in `Tests/sferaTests`, run it with `swift test --filter`, print the encoded output, then delete the file. Output comments must match what `JSONEncoder` actually produces (shown `type`-first).
 - Commit messages: lowercase, imperative, short (e.g. `define Point geometry`).
 - The repository owner usually drives TDD by writing tests. When asked to "check" work, review it and run `swift test` rather than editing unprompted. When asked to implement something (including its tests), write the failing tests first, confirm they fail, then implement.
 
 ## Release status
 
-- No CI and no tags yet. The README installation snippet uses `branch: "main"`; switch it to `from: "<version>"` in the same change that tags the first release (planned `0.1.0`).
-- Known open decisions: `JSONValue.number(.nan)` can be built but fails to encode (only values computed at runtime can hit it); `bbox` (RFC 7946 §5) and foreign members (§6.1) are not modelled.
+- No tags yet. The README installation snippet uses `branch: "main"`; switch it to `from: "<version>"` in the same change that tags the first release (planned `0.1.0`).
+- Known open decisions: `.number(.nan)` and infinities can be built in `JSONValue` and `Feature.Identifier` but fail to encode (only values computed at runtime can hit it; the README's Output section says so); `bbox` (RFC 7946 §5) and foreign members (§6.1) are not modelled.
