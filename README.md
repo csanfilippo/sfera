@@ -1,4 +1,9 @@
-# sfera
+<h1>
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset=".github/assets/sfera-lockup-dark.svg">
+    <img src=".github/assets/sfera-lockup.svg" alt="sfera" width="307">
+  </picture>
+</h1>
 
 ![Swift 6.4](https://img.shields.io/badge/Swift-6.4-F05138?logo=swift&logoColor=white)
 ![Platforms](https://img.shields.io/badge/platforms-iOS%20·%20macOS%20·%20watchOS%20·%20tvOS%2026%20·%20Linux%20·%20Wasm-blue)
