@@ -110,6 +110,12 @@ import Testing
         #expect(try geoJSON(feature) == #"{"geometry":null,"id":1234567890123456789,"properties":{"count":1234567890123456789},"type":"Feature"}"#)
     }
 
+    @Test func `integers hold the full 64-bit range on every platform`() throws {
+        let feature = Feature(id: .integer(Int64.max), geometry: nil, properties: ["count": .integer(Int64.min)])
+
+        #expect(try geoJSON(feature) == #"{"geometry":null,"id":9223372036854775807,"properties":{"count":-9223372036854775808},"type":"Feature"}"#)
+    }
+
     @Test func `decoded feature equals the feature it was encoded from`() throws {
         let feature = Feature(id: "rome", geometry: .point(try at(12.5, 41.9)), properties: ["name": "Rome", "tags": ["capital"]])
 

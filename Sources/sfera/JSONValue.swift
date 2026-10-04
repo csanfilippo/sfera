@@ -29,9 +29,9 @@
 public enum JSONValue: Sendable, Hashable {
     case null
     case bool(Bool)
-    /// A whole number, kept exact up to `Int.max`. Integer literals and whole numbers in decoded JSON produce this case.
-    case integer(Int)
-    /// A number with a fractional part, or too large for `Int`. `.integer(1)` and `.number(1.0)` are different values.
+    /// A whole number, kept exact on every platform, from `Int64.min` to `Int64.max`. Integer literals and whole numbers in decoded JSON produce this case.
+    case integer(Int64)
+    /// A number with a fractional part, or outside the `Int64` range. `.integer(1)` and `.number(1.0)` are different values.
     case number(Double)
     case string(String)
     case array([JSONValue])
@@ -67,7 +67,7 @@ extension JSONValue: ExpressibleByBooleanLiteral {
 }
 
 extension JSONValue: ExpressibleByIntegerLiteral {
-    public init(integerLiteral value: Int) {
+    public init(integerLiteral value: Int64) {
         self = .integer(value)
     }
 }
@@ -103,7 +103,7 @@ extension JSONValue: Decodable {
             self = .null
         } else if let bool = try? container.decode(Bool.self) {
             self = .bool(bool)
-        } else if let integer = try? container.decode(Int.self) {
+        } else if let integer = try? container.decode(Int64.self) {
             self = .integer(integer)
         } else if let number = try? container.decode(Double.self) {
             self = .number(number)

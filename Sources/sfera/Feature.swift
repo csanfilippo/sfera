@@ -29,9 +29,9 @@ public struct Feature: Sendable, Hashable {
     /// A feature identifier: a string or a number.
     public enum Identifier: Sendable, Hashable {
         case string(String)
-        /// A whole number, kept exact up to `Int.max`. Integer literals produce this case.
-        case integer(Int)
-        /// A number with a fractional part, or too large for `Int`.
+        /// A whole number, kept exact on every platform, from `Int64.min` to `Int64.max`. Integer literals produce this case.
+        case integer(Int64)
+        /// A number with a fractional part, or outside the `Int64` range.
         case number(Double)
     }
 
@@ -91,7 +91,7 @@ extension Feature.Identifier: ExpressibleByStringLiteral {
 }
 
 extension Feature.Identifier: ExpressibleByIntegerLiteral {
-    public init(integerLiteral value: Int) {
+    public init(integerLiteral value: Int64) {
         self = .integer(value)
     }
 }
@@ -117,7 +117,7 @@ extension Feature.Identifier: Decodable {
         let container = try decoder.singleValueContainer()
         if let string = try? container.decode(String.self) {
             self = .string(string)
-        } else if let integer = try? container.decode(Int.self) {
+        } else if let integer = try? container.decode(Int64.self) {
             self = .integer(integer)
         } else {
             self = .number(try container.decode(Double.self))

@@ -159,7 +159,7 @@ let cities = FeatureCollection([city, Feature(id: 2, geometry: .point(milan))])
 ```
 
 - **Properties** are `JSONValue`s written as literals. A null value is `.null`, because `nil` would be confused with `Optional`.
-- **Numbers** that are whole are stored as `.integer(Int)` and the rest as `.number(Double)`, so 64-bit identifiers survive a round trip exactly.
+- **Numbers** that are whole are stored as `.integer(Int64)` and the rest as `.number(Double)`, so 64-bit identifiers survive a round trip exactly, also on 32-bit platforms such as WebAssembly.
 - **`id`** is a string or a number, and is left out when absent. `geometry` and `properties` are always written, as `null` when absent, as RFC 7946 requires.
 
 ### Any GeoJSON object
