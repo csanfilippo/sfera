@@ -14,7 +14,11 @@ swift test
 swift test --filter PositionTests                 # one suite
 swift test --filter 'PositionTests/`latitude'    # a single test (regex over the test ID)
 swift test list                                   # print test IDs
+make test-linux                                   # full suite on Linux, in Docker
+make test-wasm                                    # full suite on wasm32, in Docker
 ```
+
+The `make` targets run in the official `swift` image so no second toolchain is installed locally (Xcode stays the only one). They need Docker running; the Wasm SDK is installed once into the `sfera-swiftpm` Docker volume. `SWIFT_VERSION` and the Wasm SDK checksum in the `Makefile` must be bumped together. `--filter` does not work on wasm32 (SwiftPM tries to execute the `.wasm` to list tests), so `test-wasm` always runs the full suite; it also passes `--disable-xctest`, because the XCTest runner traps in Foundation's `Bundle.main` on WASI even with no XCTest tests. Both targets mount the sources read-only and build in the container, so they never touch the local `.build`.
 
 Test IDs have the form ``sferaTests.PositionTests/`latitude outside -90…90 is rejected`(latitude:)``. Raw-identifier names keep their backticks in the ID, so a filter on the name must include the leading backtick; a bare word also matches parameter labels.
 
