@@ -15,7 +15,7 @@
 
 **GeoJSON for Swift, valid by construction.**
 
-`sfera` models [RFC 7946](https://datatracker.ietf.org/doc/html/rfc7946) GeoJSON as Swift value types. The rules of the format live in the types, so any value you can hold is a value you can publish:
+`sfera` models [RFC 7946](https://datatracker.ietf.org/doc/html/rfc7946) GeoJSON as Swift value types. The rules of the format live in the types:
 
 - Coordinates are validated the moment a `Position` is created.
 - A line string needs two positions, and a ring three vertices. The compiler checks both.
