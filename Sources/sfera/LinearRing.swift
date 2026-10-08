@@ -103,6 +103,6 @@ extension LinearRing: Decodable {
         guard positions.first == positions.last else {
             throw DecodingError.invalid("A linear ring must end with its first position", in: decoder)
         }
-        self.init(AtLeast(Array(positions.dropLast()))!)
+        self.init(try! AtLeast(validating: Array(positions.dropLast())))
     }
 }

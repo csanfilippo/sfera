@@ -81,4 +81,17 @@ import Foundation
 
         #expect(collections.count == 1)
     }
+    
+    @Test func `fewer elements than the minimum are rejected`() {
+        #expect(throws: AtLeastError.minimumNotMet) {
+            try AtLeast<3, Int>(validating: [1, 2])
+        }
+    }
+
+    @Test(arguments: [[1, 2, 3], [1, 2, 3, 4]])
+    func `elements from an array keep their order`(elements: [Int]) throws {
+        let atLeast3 = try AtLeast<3, Int>(validating: elements)
+
+        #expect(Array(atLeast3) == elements)
+    }
 }

@@ -22,6 +22,12 @@
  SOFTWARE.
  */
 
+/// Why an ``AtLeast`` could not be created from runtime elements.
+public enum AtLeastError: Error {
+    /// Fewer elements than the collection's `minimum` were given.
+    case minimumNotMet
+}
+
 /// A collection that always holds at least `minimum` elements.
 ///
 /// The first `minimum` elements are stored in a fixed-size `InlineArray`, so an array literal with the wrong count
@@ -80,9 +86,14 @@ extension AtLeast: Encodable where Element: Encodable {
 }
 
 extension AtLeast {
-    init?(_ elements: [Element]) {
+    /// Creates a collection from elements known only at runtime, checking the minimum.
+    ///
+    /// Prefer ``init(_:_:)`` when the elements are written in code: it checks the minimum at compile time.
+    ///
+    /// - Throws: ``AtLeastError/minimumNotMet`` when `elements` has fewer than `minimum` elements.
+    public init(validating elements: [Element]) throws(AtLeastError) {
         guard elements.count >= minimum else {
-            return nil
+            throw .minimumNotMet
         }
         self.init(InlineArray { elements[$0] }, Array(elements.dropFirst(minimum)))
     }
@@ -91,9 +102,10 @@ extension AtLeast {
 extension AtLeast: Decodable where Element: Decodable {
     public init(from decoder: any Decoder) throws {
         let elements = try [Element](from: decoder)
-        guard let atLeast = AtLeast(elements) else {
-            throw DecodingError.invalid("Expected at least \(minimum) elements, found \(elements.count)", in: decoder)
+        do {
+            try self.init(validating: elements)
+        } catch {
+            throw DecodingError.invalid("Expected at least \(minimum) elements, found \(elements.count)", in: decoder, underlyingError: error)
         }
-        self = atLeast
     }
 }
