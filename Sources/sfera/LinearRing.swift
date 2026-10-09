@@ -28,7 +28,7 @@
 /// so an open ring cannot be produced. Decoding requires a closed ring of at least four positions
 /// and drops the repeated closing position.
 public struct LinearRing: Sendable, Hashable {
-    /// The distinct vertices in boundary order, without the closing position.
+    /// The vertices in boundary order, without the closing position. They are not required to differ from each other.
     public let vertices: AtLeast<3, Position>
     
     init(_ vertices: AtLeast<3, Position>) {
@@ -94,7 +94,7 @@ extension LinearRing: Encodable {
 }
 
 extension LinearRing: Decodable {
-    // The encoded ring repeats its first position at the end; the model keeps only the distinct vertices.
+    // The encoded ring repeats its first position at the end; the model drops that closing position.
     public init(from decoder: any Decoder) throws {
         let positions = try [Position](from: decoder)
         guard positions.count >= 4 else {
