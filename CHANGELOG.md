@@ -2,7 +2,7 @@
 
 All notable changes to `sfera` are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project uses [Semantic Versioning](https://semver.org/): while the version is below 1.0, a breaking change bumps the minor version.
 
-## Unreleased
+## 0.2.0 – 2026-10-09
 
 ### Added
 
