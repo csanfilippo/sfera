@@ -28,11 +28,11 @@ import Foundation
 
 @Suite struct AtLeastTests {
     @Test func `count is the size of the guaranteed elements if no tail is present`() {
-        let atLeast2: AtLeast<2, Int> = .init([1,2])
-        
+        let atLeast2 = AtLeast<2, Int>([1, 2])
+
         #expect(atLeast2.count == 2)
     }
-    
+
     @Test func `count is the size of the guaranteed elements plus the tail if present`() {
         let atLeast2: AtLeast<2, Int> = .init([1,2], [22])
         
