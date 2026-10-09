@@ -29,10 +29,8 @@ public struct Feature: Sendable, Hashable {
     /// A feature identifier: a string or a number.
     public enum Identifier: Sendable, Hashable {
         case string(String)
-        /// A whole number, kept exact on every platform, from `Int64.min` to `Int64.max`. Integer literals produce this case.
-        case integer(Int64)
-        /// A number with a fractional part, or outside the `Int64` range.
-        case number(Double)
+        /// A numeric identifier; integer literals produce this case. `"7"` and `7` are different identifiers.
+        case number(JSONNumber)
     }
 
     /// The feature's identifier, if it has one.
@@ -76,8 +74,6 @@ extension Feature.Identifier: Encodable {
         switch self {
         case .string(let string):
             try container.encode(string)
-        case .integer(let integer):
-            try container.encode(integer)
         case .number(let number):
             try container.encode(number)
         }
@@ -92,7 +88,7 @@ extension Feature.Identifier: ExpressibleByStringLiteral {
 
 extension Feature.Identifier: ExpressibleByIntegerLiteral {
     public init(integerLiteral value: Int64) {
-        self = .integer(value)
+        self = .number(JSONNumber(value))
     }
 }
 
@@ -117,10 +113,8 @@ extension Feature.Identifier: Decodable {
         let container = try decoder.singleValueContainer()
         if let string = try? container.decode(String.self) {
             self = .string(string)
-        } else if let integer = try? container.decode(Int64.self) {
-            self = .integer(integer)
         } else {
-            self = .number(try container.decode(Double.self))
+            self = .number(try container.decode(JSONNumber.self))
         }
     }
 }

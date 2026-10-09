@@ -111,7 +111,7 @@ import Testing
     }
 
     @Test func `integers hold the full 64-bit range on every platform`() throws {
-        let feature = Feature(id: .integer(Int64.max), geometry: nil, properties: ["count": .integer(Int64.min)])
+        let feature = Feature(id: .number(JSONNumber(Int64.max)), geometry: nil, properties: ["count": .number(JSONNumber(Int64.min))])
 
         #expect(try geoJSON(feature) == #"{"geometry":null,"id":9223372036854775807,"properties":{"count":-9223372036854775808},"type":"Feature"}"#)
     }
@@ -121,8 +121,16 @@ import Testing
 
         #expect(try decoded(Feature.self, from: geoJSON(feature)) == feature)
     }
+    
+    @Test func `a feature with a whole-valued number property equals itself after a round trip`() throws {
+        let feature = Feature(geometry: nil, properties: ["area": .number(JSONNumber(1500.0))])
 
-    @Test func `integer and fractional numbers are different values`() {
-        #expect(JSONValue.integer(1) != JSONValue.number(1.0))
+        #expect(try decoded(Feature.self, from: geoJSON(feature)) == feature)
+    }
+    
+    @Test func `a feature with a whole-valued number id equals itself after a round trip`() throws {
+        let feature = Feature(id: .number(JSONNumber(11.0)), geometry: nil)
+
+        #expect(try decoded(Feature.self, from: geoJSON(feature)) == feature)
     }
 }

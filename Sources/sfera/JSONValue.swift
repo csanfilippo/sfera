@@ -29,10 +29,8 @@
 public enum JSONValue: Sendable, Hashable {
     case null
     case bool(Bool)
-    /// A whole number, kept exact on every platform, from `Int64.min` to `Int64.max`. Integer literals and whole numbers in decoded JSON produce this case.
-    case integer(Int64)
-    /// A number with a fractional part, or outside the `Int64` range. `.integer(1)` and `.number(1.0)` are different values.
-    case number(Double)
+    /// A number; integer and float literals produce this case, and `2` equals `2.0`.
+    case number(JSONNumber)
     case string(String)
     case array([JSONValue])
     case object([String: JSONValue])
@@ -46,8 +44,6 @@ extension JSONValue: Encodable {
             try container.encodeNil()
         case .bool(let bool):
             try container.encode(bool)
-        case .integer(let integer):
-            try container.encode(integer)
         case .number(let number):
             try container.encode(number)
         case .string(let string):
@@ -68,13 +64,13 @@ extension JSONValue: ExpressibleByBooleanLiteral {
 
 extension JSONValue: ExpressibleByIntegerLiteral {
     public init(integerLiteral value: Int64) {
-        self = .integer(value)
+        self = .number(JSONNumber(value))
     }
 }
 
 extension JSONValue: ExpressibleByFloatLiteral {
     public init(floatLiteral value: Double) {
-        self = .number(value)
+        self = .number(JSONNumber(value))
     }
 }
 
@@ -103,9 +99,7 @@ extension JSONValue: Decodable {
             self = .null
         } else if let bool = try? container.decode(Bool.self) {
             self = .bool(bool)
-        } else if let integer = try? container.decode(Int64.self) {
-            self = .integer(integer)
-        } else if let number = try? container.decode(Double.self) {
+        } else if let number = try? container.decode(JSONNumber.self) {
             self = .number(number)
         } else if let string = try? container.decode(String.self) {
             self = .string(string)

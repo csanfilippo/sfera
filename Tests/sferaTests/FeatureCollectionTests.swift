@@ -52,4 +52,15 @@ import Testing
             try decoded(FeatureCollection.self, from: #"{"geometry":null,"properties":null,"type":"Feature"}"#)
         }
     }
+
+    @Test func `decoded numbers equal the same numbers written as literals`() throws {
+        let json = #"{"features":[{"geometry":null,"id":7,"properties":{"area":4.5,"floors":7,"rooms":7.0,"population":1234567890123456789},"type":"Feature"},{"geometry":null,"id":7.0,"properties":null,"type":"Feature"}],"type":"FeatureCollection"}"#
+
+        let expected = FeatureCollection([
+            Feature(id: .number(7.0), geometry: nil, properties: ["area": 4.5, "floors": 7.0, "rooms": 7, "population": 1234567890123456789]),
+            Feature(id: 7, geometry: nil),
+        ])
+
+        #expect(try decoded(FeatureCollection.self, from: json) == expected)
+    }
 }
