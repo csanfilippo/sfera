@@ -1,31 +1,56 @@
 name: Tests
 
+# The workflow runs on every push to main and every pull request, so the required checks (linux, wasm, macos)
+# always report. When nothing that can change a test result was touched, the test jobs are skipped, which counts
+# as passing; a path filter on the trigger instead would leave the required checks pending forever.
 on:
   push:
     branches: [main]
-    paths: &tested
-      - Package.swift
-      - Sources/**
-      - Tests/**
-      - Makefile
-      - .github/workflows/tests.yml
   pull_request:
-    paths: *tested
+
+permissions:
+  contents: read
+  pull-requests: read
 
 jobs:
-  docker:
-    name: ${{ matrix.platform }}
+  changes:
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        platform: [linux, wasm]
+    outputs:
+      tested: ${{ steps.filter.outputs.tested }}
     steps:
       - uses: actions/checkout@v7
-      - run: make test-${{ matrix.platform }}
+      - id: filter
+        uses: dorny/paths-filter@ceb8a2b8f2d89434be7ff52d3de7ec3738c5cc9d # v4.0.3
+        with:
+          filters: |
+            tested:
+              - Package.swift
+              - 'Sources/**'
+              - 'Tests/**'
+              - Makefile
+              - .github/workflows/tests.yml
+
+  # Separate jobs rather than a matrix: a matrix job skipped by `if` reports under its unexpanded name,
+  # so the required linux and wasm checks would never appear.
+  linux:
+    needs: changes
+    if: needs.changes.outputs.tested == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - run: make test-linux
+
+  wasm:
+    needs: changes
+    if: needs.changes.outputs.tested == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - run: make test-wasm
 
   macos:
-    name: macos
+    needs: changes
+    if: needs.changes.outputs.tested == 'true'
     # Swift 6.4 ships with Xcode 27, which GitHub provides only on this (preview) image.
     runs-on: xcode-27
     steps:
