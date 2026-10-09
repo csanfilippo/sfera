@@ -52,4 +52,25 @@ import Foundation
             try decoded(LinearRing.self, from: "[[0,0],[1,0],[0,0]]")
         }
     }
+
+    @Test(arguments: [
+        [],
+        [try at(0, 0)],
+        [try at(0, 0), try at(10, 0)],
+    ])
+    func `fewer than three vertices are rejected`(vertices: [Position]) {
+        #expect(throws: AtLeastError.minimumNotMet) {
+            try LinearRing(validating: vertices)
+        }
+    }
+
+    @Test(arguments: [
+        [try at(0, 0), try at(10, 0), try at(10, 10)],
+        [try at(0, 0), try at(10, 0), try at(10, 10), try at(0, 10)],
+    ])
+    func `vertices from an array keep their order`(vertices: [Position]) throws {
+        let ring = try LinearRing(validating: vertices)
+
+        #expect(Array(ring.vertices) == vertices)
+    }
 }

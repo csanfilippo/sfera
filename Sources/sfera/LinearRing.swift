@@ -43,6 +43,15 @@ public struct LinearRing: Sendable, Hashable {
     public init(_ vertices: InlineArray<3, Position>, _ rest: [Position] = []) {
         self.init(AtLeast(vertices, rest))
     }
+
+    /// Creates a ring from vertices known only at runtime, in boundary order, without repeating the first one at the end.
+    ///
+    /// Prefer ``init(_:_:)`` when the vertices are written in code: it checks the minimum at compile time.
+    ///
+    /// - Throws: ``AtLeastError/minimumNotMet`` when there are fewer than three vertices.
+    public init(validating vertices: [Position]) throws(AtLeastError) {
+        self.init(try AtLeast(validating: vertices))
+    }
 }
 
 enum Orientation {

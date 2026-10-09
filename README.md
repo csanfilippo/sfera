@@ -18,7 +18,7 @@
 `sfera` models [RFC 7946](https://datatracker.ietf.org/doc/html/rfc7946) GeoJSON as Swift value types. The rules of the format live in the types:
 
 - Coordinates are validated the moment a `Position` is created.
-- A line string needs two positions, and a ring three vertices. The compiler checks both.
+- A line string needs two positions, and a ring three vertices. The compiler checks both, and positions known only at runtime are checked when the value is built.
 - Rings close themselves, and polygons follow the right-hand rule automatically.
 - Large integer identifiers and properties survive a round trip exactly.
 
@@ -92,7 +92,7 @@ As GeoJSON requires, positions are written longitude first: Rome is `[12.4964,41
 | GeoJSON | Swift | Rule |
 |---|---|---|
 | Point | `.point(Position)` | |
-| LineString | `.lineString(LineString)` | two or more positions, checked at compile time |
+| LineString | `.lineString(LineString)` | two or more positions, checked at compile time, or at runtime from an array |
 | Polygon | `.polygon(Polygon)` | an exterior ring and optional holes |
 | MultiPoint | `.multiPoint([Position])` | may be empty |
 | MultiLineString | `.multiLineString([LineString])` | may be empty |
@@ -136,6 +136,23 @@ let farm = Geometry.polygon(Polygon(exterior: field, holes: [pond]))
 ```
 
 Vertices can be listed in either direction. GeoJSON's right-hand rule wants the polygon's area on the left of every ring, so the exterior runs counter-clockwise and holes clockwise. `Polygon` reverses any ring that runs the other way, keeping its first vertex. The pond above was given counter-clockwise and is written clockwise. The vertices must still follow the boundary, and a ring whose vertices all lie on one line has no direction and is kept as given.
+
+#### From runtime data
+
+When positions arrive at runtime, from a file or a sensor, the compiler cannot count them. `init(validating:)` checks the minimum when the value is built and throws `AtLeastError.minimumNotMet` when there are too few. A ring's vertices are still given without repeating the first one.
+
+```swift
+let gpsLog: [Position] = [naples, rome, florence]
+
+let track  = try LineString(validating: gpsLog)
+let region = try LinearRing(validating: gpsLog)
+
+do {
+    _ = try LineString(validating: [rome])
+} catch .minimumNotMet {
+    // a line string needs at least two positions
+}
+```
 
 #### Collections
 
