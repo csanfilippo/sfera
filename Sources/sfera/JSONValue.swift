@@ -70,7 +70,7 @@ extension JSONValue: ExpressibleByIntegerLiteral {
 
 extension JSONValue: ExpressibleByFloatLiteral {
     public init(floatLiteral value: Double) {
-        self = .number(JSONNumber(value))
+        self = try! .number(JSONNumber(value))
     }
 }
 

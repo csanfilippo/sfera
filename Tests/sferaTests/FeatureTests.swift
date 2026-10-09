@@ -133,4 +133,10 @@ import Testing
 
         #expect(try decoded(Feature.self, from: geoJSON(feature)) == feature)
     }
+
+    @Test func `the largest finite number property equals itself after a round trip`() throws {
+        let feature = Feature(geometry: nil, properties: ["largest": .number(try JSONNumber(Double.greatestFiniteMagnitude))])
+
+        #expect(try decoded(Feature.self, from: geoJSON(feature)) == feature)
+    }
 }

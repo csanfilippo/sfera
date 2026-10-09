@@ -22,6 +22,7 @@
  SOFTWARE.
  */
 
+import Foundation
 import sfera
 import Testing
 
@@ -121,5 +122,48 @@ import Testing
         #expect(throws: DecodingError.self) {
             try decoded(JSONNumber.self, from: json)
         }
+    }
+    
+    @Test(arguments: [Double.nan, .infinity, -.infinity])
+    func `a non-finite Double is rejected`(value: Double) {
+        #expect(throws: JSONNumberError.notFinite) {
+            try JSONNumber(value)
+        }
+    }
+
+    @Test(arguments: [Double.greatestFiniteMagnitude, -.greatestFiniteMagnitude, .leastNonzeroMagnitude, -.leastNonzeroMagnitude])
+    func `the largest and smallest finite Doubles are accepted`(value: Double) throws {
+        #expect(try JSONNumber(value).doubleValue == value)
+    }
+
+    @Test(arguments: [10.0, -10.0, 0.0])
+    func `a whole Double equals the same integer`(whole: Double) throws {
+        #expect(try JSONNumber(whole) == JSONNumber(Int64(whole)))
+    }
+
+    #if !os(WASI)
+    // Exit tests need a child process, which WASI cannot spawn.
+    @Test func `a float literal that overflows to infinity traps`() async {
+        await #expect(processExitsWith: .failure) {
+            _ = JSONNumber(floatLiteral: .infinity)
+        }
+    }
+    #endif
+
+    // Standard JSON has no NaN or infinity; only a decoder configured to accept them can produce one.
+    @Test(arguments: [#""NaN""#, #""Infinity""#, #""-Infinity""#])
+    func `a non-finite number from a lenient decoder is rejected with its reason`(json: String) {
+        let decoder = JSONDecoder()
+        decoder.nonConformingFloatDecodingStrategy = .convertFromString(positiveInfinity: "Infinity", negativeInfinity: "-Infinity", nan: "NaN")
+
+        let error = #expect(throws: DecodingError.self) {
+            try decoder.decode(JSONNumber.self, from: Data(json.utf8))
+        }
+
+        guard case .dataCorrupted(let context) = error else {
+            Issue.record("Expected dataCorrupted, got \(String(describing: error))")
+            return
+        }
+        #expect(context.underlyingError as? JSONNumberError == .notFinite)
     }
 }

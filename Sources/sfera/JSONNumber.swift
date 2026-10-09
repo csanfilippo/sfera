@@ -22,13 +22,20 @@
  SOFTWARE.
  */
 
+/// Why a ``JSONNumber`` could not be created.
+public enum JSONNumberError: Error {
+    /// The value is NaN or an infinity, which JSON cannot represent.
+    case notFinite
+}
+
 /// A JSON number (RFC 8259 §6), as used in a Feature's `properties` and `id`.
 ///
 /// JSON has a single number type, so `2` and `2.0` are the same `JSONNumber`. Whole numbers from `Int64.min` to
 /// `Int64.max` are kept exactly on every platform, so 64-bit identifiers survive a round trip; a `Double` equals
 /// an integer only when it converts to it exactly. Integers are encoded without a fractional part.
 ///
-/// A number holding NaN or an infinity can be created, but fails to encode: JSON has no such values.
+/// A `JSONNumber` is always finite, because JSON has no NaN or infinity, so it always encodes. A float literal that
+/// overflows to infinity (which the compiler only warns about) is a programmer error and traps.
 public struct JSONNumber: Sendable, Hashable {
 
     // Whole numbers in the Int64 range are always stored as `.int64`, so each value has one representation
@@ -61,7 +68,12 @@ public struct JSONNumber: Sendable, Hashable {
     }
     
     /// Creates a number from a `Double`. A whole value in the `Int64` range is equal to that integer.
-    public init(_ value: Double) {
+    ///
+    /// - Throws: ``JSONNumberError/notFinite`` when `value` is NaN or an infinity.
+    public init(_ value: Double) throws(JSONNumberError) {
+        guard value.isFinite else {
+            throw JSONNumberError.notFinite
+        }
         self.storage = Int64(exactly: value).map(Storage.int64) ?? .double(value)
     }
     
@@ -78,7 +90,7 @@ extension JSONNumber: ExpressibleByIntegerLiteral {
 
 extension JSONNumber: ExpressibleByFloatLiteral {
     public init(floatLiteral value: Double) {
-        self.init(value)
+        try! self.init(value)
     }
 }
 
@@ -100,7 +112,12 @@ extension JSONNumber: Decodable {
         if let integer = try? container.decode(Int64.self) {
             self.init(integer)
         } else {
-            self.init(try container.decode(Double.self))
+            let double = try container.decode(Double.self)
+            do {
+                try self.init(double)
+            } catch {
+                throw DecodingError.invalid("A JSON number must be finite, found \(double)", in: decoder, underlyingError: error)
+            }
         }
     }
 }

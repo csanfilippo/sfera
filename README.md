@@ -185,7 +185,7 @@ let cities = FeatureCollection([city, Feature(id: 2, geometry: .point(milan))])
 ```
 
 - **Properties** are `JSONValue`s written as literals. A null value is `.null`, because `nil` would be confused with `Optional`.
-- **Numbers** are `JSONNumber`s. JSON has a single number type, so `2` and `2.0` are equal. Whole numbers are kept exact up to 64 bits, so identifiers survive a round trip, also on 32-bit platforms such as WebAssembly. Read one with `int64Value` (exact, or `nil`) or `doubleValue`.
+- **Numbers** are `JSONNumber`s. JSON has a single number type, so `2` and `2.0` are equal. Whole numbers are kept exact up to 64 bits, so identifiers survive a round trip, also on 32-bit platforms such as WebAssembly. Read one with `int64Value` (exact, or `nil`) or `doubleValue`. JSON has no NaN or infinity, so building a `JSONNumber` from a computed `Double` uses `try JSONNumber(value)`, which throws `JSONNumberError.notFinite` for them.
 - **`id`** is a string or a number, and is left out when absent. `geometry` and `properties` are always written, as `null` when absent, as RFC 7946 requires.
 
 ### Any GeoJSON object
@@ -221,6 +221,7 @@ Decoding enforces the same rules as the initializers, so a decoded value is alwa
 | Ring wound the wrong way | accepted and corrected, as RFC 7946 asks of parsers |
 | Feature without `geometry` or `properties` | accepted, as `null` |
 | Number with a zero fraction or an exponent, such as `2.0` or `1e2` | accepted, equal to the integer |
+| NaN or infinity, from a decoder set to accept them | rejected, with the `JSONNumberError` as the underlying error |
 | Position elements after the altitude | ignored |
 | `bbox` and foreign members | ignored, so they are lost in a round trip |
 
@@ -228,7 +229,7 @@ Rejections are thrown as `DecodingError`, with the coding path of the offending 
 
 ### Output
 
-`JSONEncoder` does not guarantee the order of object keys; set `outputFormatting = .sortedKeys` for stable output. JSON has no NaN or infinity, so encoding a `JSONNumber` that holds one throws. To check what `sfera` produces against the specification, use the [GeoJSON validator](https://www.itb.ec.europa.eu/json/geojson/upload) of the European Commission's Interoperability Test Bed.
+`JSONEncoder` does not guarantee the order of object keys; set `outputFormatting = .sortedKeys` for stable output. To check what `sfera` produces against the specification, use the [GeoJSON validator](https://www.itb.ec.europa.eu/json/geojson/upload) of the European Commission's Interoperability Test Bed.
 
 ## Development
 
