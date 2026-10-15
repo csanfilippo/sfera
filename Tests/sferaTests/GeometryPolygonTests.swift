@@ -27,6 +27,15 @@ import Testing
 import Foundation
 
 @Suite struct GeometryPolygonTests {
+    @Test func `polygon is described as its rings, exterior first`() throws {
+        let exterior = LinearRing([try at(0.5, 0.5), try at(10.5, 0.5), try at(10.5, 10.5)])
+        let hole     = LinearRing([try at(2.5, 2.5), try at(2.5, 4.5), try at(4.5, 4.5)])
+
+        let polygon = Polygon(exterior: exterior, holes: [hole])
+
+        #expect(String(describing: polygon) == "[[[0.5, 0.5], [10.5, 0.5], [10.5, 10.5], [0.5, 0.5]], [[2.5, 2.5], [2.5, 4.5], [4.5, 4.5], [2.5, 2.5]]]")
+    }
+
     @Test func `polygon without holes is encoded as a single ring`() throws {
         let exterior = LinearRing([try at(0, 0), try at(10, 0), try at(10, 10)], [try at(0, 10)])
 

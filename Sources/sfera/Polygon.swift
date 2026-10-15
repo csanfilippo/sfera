@@ -40,11 +40,23 @@ public struct Polygon: Sendable, Hashable {
     }
 }
 
+extension Polygon {
+    // The rings as GeoJSON writes them: the exterior first, then the holes.
+    private var rings: [LinearRing] {
+        [exterior] + holes
+    }
+}
+
+extension Polygon: CustomStringConvertible {
+    public var description: String {
+        rings.description
+    }
+}
+
 extension Polygon: Encodable {
     public func encode(to encoder: any Encoder) throws {
         var container = encoder.unkeyedContainer()
-        try container.encode(exterior)
-        try container.encode(contentsOf: holes)
+        try container.encode(contentsOf: rings)
     }
 }
 
