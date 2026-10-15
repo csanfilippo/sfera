@@ -56,6 +56,51 @@ extension JSONValue: Encodable {
     }
 }
 
+extension JSONValue: CustomStringConvertible {
+    // Object members are described in key order, so the same value always reads the same.
+    public var description: String {
+        switch self {
+        case .null:
+            "null"
+        case .bool(let bool):
+            bool.description
+        case .number(let number):
+            number.description
+        case .string(let string):
+            Self.quoted(string)
+        case .array(let array):
+            array.description
+        case .object(let object):
+            "{" + object.sorted { $0.key < $1.key }.map { "\(Self.quoted($0.key)): \($0.value)" }.joined(separator: ", ") + "}"
+        }
+    }
+
+    // RFC 8259 §7: quotation marks, backslashes and control characters must be escaped.
+    private static func quoted(_ string: String) -> String {
+        var quoted = "\""
+        for scalar in string.unicodeScalars {
+            switch scalar {
+            case "\"":
+                quoted += "\\\""
+            case "\\":
+                quoted += "\\\\"
+            case "\n":
+                quoted += "\\n"
+            case "\r":
+                quoted += "\\r"
+            case "\t":
+                quoted += "\\t"
+            case _ where scalar.value < 0x20:
+                let hex = String(scalar.value, radix: 16)
+                quoted += "\\u" + String(repeating: "0", count: 4 - hex.count) + hex
+            default:
+                quoted.unicodeScalars.append(scalar)
+            }
+        }
+        return quoted + "\""
+    }
+}
+
 extension JSONValue: ExpressibleByBooleanLiteral {
     public init(booleanLiteral value: Bool) {
         self = .bool(value)
