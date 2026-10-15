@@ -26,6 +26,15 @@ import sfera
 import Testing
 
 @Suite struct FeatureCollectionTests {
+    @Test func `feature collection is described as GeoJSON, with its features in order`() throws {
+        let collection = FeatureCollection([
+            Feature(id: "rome", geometry: .point(try at(12.5, 41.9))),
+            Feature(id: "nowhere", geometry: nil),
+        ])
+
+        #expect(String(describing: collection) == #"{"type": "FeatureCollection", "features": [{"type": "Feature", "id": "rome", "geometry": {"type": "Point", "coordinates": [12.5, 41.9]}, "properties": null}, {"type": "Feature", "id": "nowhere", "geometry": null, "properties": null}]}"#)
+    }
+
     @Test func `features are encoded in order`() throws {
         let collection = FeatureCollection([
             Feature(id: "rome", geometry: .point(try at(12.5, 41.9))),

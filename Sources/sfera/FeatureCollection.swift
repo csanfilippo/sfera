@@ -39,6 +39,12 @@ extension FeatureCollection {
     }
 }
 
+extension FeatureCollection: CustomStringConvertible {
+    public var description: String {
+        GeoJSONType.featureCollection.describe([(CodingKeys.features.rawValue, features.description)])
+    }
+}
+
 extension FeatureCollection: Encodable {
     public func encode(to encoder: any Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
