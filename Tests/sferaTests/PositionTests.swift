@@ -27,6 +27,16 @@ import Testing
 import Foundation
 
 @Suite struct PositionTests {
+    @Test func `position is described longitude first, as GeoJSON`() throws {
+        #expect(String(describing: try at(12.4964, 41.9028)) == "[12.4964, 41.9028]")
+    }
+
+    @Test func `position with altitude is described with the altitude last`() throws {
+        let summit = try Position(latitude: 45.8326, longitude: 6.8652, altitude: 4805.59)
+
+        #expect(String(describing: summit) == "[6.8652, 45.8326, 4805.59]")
+    }
+
     @Test(arguments: [-90.1, 90.1, .nan])
     func `latitude outside -90…90 is rejected`(latitude: Double) {
         #expect(throws: PositionError.latitudeOutOfRange) {

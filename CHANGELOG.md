@@ -6,7 +6,7 @@ All notable changes to `sfera` are documented here. The format follows [Keep a C
 
 ### Added
 
-- `JSONNumber` conforms to `CustomStringConvertible`, so it prints as the number it holds (`2`, `2.65`) instead of its internal storage.
+- `JSONNumber` and `Position` conform to `CustomStringConvertible`, so they print as the GeoJSON they stand for (`2.65`, `[12.4964, 41.9028]`) instead of their internal structure.
 
 ## 0.2.0 – 2026-10-09
 

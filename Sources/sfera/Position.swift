@@ -82,6 +82,12 @@ extension Position: Encodable {
 
 extension Position: Hashable {}
 
+extension Position: CustomStringConvertible {
+    public var description: String {
+        ([longitude, latitude] + [altitude].compactMap { $0 }).description
+    }
+}
+
 extension Position: Decodable {
     // Elements after the altitude are ignored: RFC 7946 leaves their meaning unspecified.
     public init(from decoder: any Decoder) throws {
