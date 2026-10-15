@@ -80,6 +80,17 @@ extension Feature.Identifier: Encodable {
     }
 }
 
+extension Feature: CustomStringConvertible {
+    // Mirrors the encoding: `geometry` and `properties` are described as null when absent; `id` is left out.
+    public var description: String {
+        let id = self.id.map { [(CodingKeys.id.rawValue, $0.description)] } ?? []
+        return GeoJSONType.feature.describe(id + [
+            (CodingKeys.geometry.rawValue, geometry?.description ?? JSONValue.null.description),
+            (CodingKeys.properties.rawValue, (properties.map(JSONValue.object) ?? .null).description),
+        ])
+    }
+}
+
 extension Feature.Identifier: CustomStringConvertible {
     public var description: String {
         switch self {

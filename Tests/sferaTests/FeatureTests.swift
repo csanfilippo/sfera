@@ -141,6 +141,16 @@ import Testing
         #expect(try decoded(Feature.self, from: geoJSON(feature)) == feature)
     }
 
+    @Test func `feature is described as GeoJSON, type first`() throws {
+        let city = Feature(id: 42, geometry: .point(try at(12.4964, 41.9028)), properties: ["population": 2_800_000])
+
+        #expect(String(describing: city) == #"{"type": "Feature", "id": 42, "geometry": {"type": "Point", "coordinates": [12.4964, 41.9028]}, "properties": {"population": 2800000}}"#)
+    }
+
+    @Test func `feature without id, geometry or properties is described with null geometry and properties`() {
+        #expect(String(describing: Feature(geometry: nil)) == #"{"type": "Feature", "geometry": null, "properties": null}"#)
+    }
+
     @Test(arguments: [
         (Feature.Identifier.string("rome"), #""rome""#),
         (.string("7"), #""7""#),
