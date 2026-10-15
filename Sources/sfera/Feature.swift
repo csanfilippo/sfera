@@ -80,6 +80,17 @@ extension Feature.Identifier: Encodable {
     }
 }
 
+extension Feature.Identifier: CustomStringConvertible {
+    public var description: String {
+        switch self {
+        case .string(let string):
+            JSONValue.string(string).description
+        case .number(let number):
+            number.description
+        }
+    }
+}
+
 extension Feature.Identifier: ExpressibleByStringLiteral {
     public init(stringLiteral value: String) {
         self = .string(value)

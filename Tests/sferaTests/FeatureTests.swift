@@ -141,6 +141,15 @@ import Testing
         #expect(try decoded(Feature.self, from: geoJSON(feature)) == feature)
     }
 
+    @Test(arguments: [
+        (Feature.Identifier.string("rome"), #""rome""#),
+        (.string("7"), #""7""#),
+        (.number(7), "7"),
+    ])
+    func `id is described as JSON, a string quoted and a number bare`(id: Feature.Identifier, json: String) {
+        #expect(String(describing: id) == json)
+    }
+
     // Only a decoder configured to read these strings as numbers could turn them into NaN or an infinity.
     @Test(arguments: ["NaN", "Infinity", "-Infinity"])
     func `a non-finite number name in an id or a property stays a string with a lenient decoder`(name: String) throws {

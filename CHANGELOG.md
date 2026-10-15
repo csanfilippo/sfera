@@ -6,7 +6,7 @@ All notable changes to `sfera` are documented here. The format follows [Keep a C
 
 ### Added
 
-- `JSONNumber`, `Position`, `AtLeast` (so `LineString`), `LinearRing`, `Polygon`, `Geometry` and `JSONValue` conform to `CustomStringConvertible`, so they print as the GeoJSON they stand for (`2.65`, `[12.4964, 41.9028]`) instead of their internal structure.
+- `JSONNumber`, `Position`, `AtLeast` (so `LineString`), `LinearRing`, `Polygon`, `Geometry`, `JSONValue` and `Feature.Identifier` conform to `CustomStringConvertible`, so they print as the GeoJSON they stand for (`2.65`, `[12.4964, 41.9028]`) instead of their internal structure.
 
 ## 0.2.0 – 2026-10-09
 
