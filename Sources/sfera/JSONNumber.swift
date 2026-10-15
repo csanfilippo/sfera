@@ -94,6 +94,17 @@ extension JSONNumber: ExpressibleByFloatLiteral {
     }
 }
 
+extension JSONNumber: CustomStringConvertible {
+    public var description: String {
+        switch storage {
+        case .int64(let int64):
+            return int64.description
+        case .double(let double):
+            return double.description
+        }
+    }
+}
+
 extension JSONNumber: Encodable {
     public func encode(to encoder: any Encoder) throws {
         var container = encoder.singleValueContainer()

@@ -22,6 +22,7 @@
  SOFTWARE.
  */
 
+import Foundation
 import sfera
 import Testing
 
@@ -138,5 +139,17 @@ import Testing
         let feature = Feature(geometry: nil, properties: ["largest": .number(try JSONNumber(Double.greatestFiniteMagnitude))])
 
         #expect(try decoded(Feature.self, from: geoJSON(feature)) == feature)
+    }
+
+    // Only a decoder configured to read these strings as numbers could turn them into NaN or an infinity.
+    @Test(arguments: ["NaN", "Infinity", "-Infinity"])
+    func `a non-finite number name in an id or a property stays a string with a lenient decoder`(name: String) throws {
+        let decoder = JSONDecoder()
+        decoder.nonConformingFloatDecodingStrategy = .convertFromString(positiveInfinity: "Infinity", negativeInfinity: "-Infinity", nan: "NaN")
+        let json = #"{"geometry":null,"id":"\#(name)","properties":{"value":"\#(name)"},"type":"Feature"}"#
+
+        let feature = try decoder.decode(Feature.self, from: Data(json.utf8))
+
+        #expect(feature == Feature(id: .string(name), geometry: nil, properties: ["value": .string(name)]))
     }
 }

@@ -221,7 +221,7 @@ Decoding enforces the same rules as the initializers, so a decoded value is alwa
 | Ring wound the wrong way | accepted and corrected, as RFC 7946 asks of parsers |
 | Feature without `geometry` or `properties` | accepted, as `null` |
 | Number with a zero fraction or an exponent, such as `2.0` or `1e2` | accepted, equal to the integer |
-| NaN or infinity, from a decoder set to accept them | rejected, with the `JSONNumberError` as the underlying error |
+| `"NaN"` or `"Infinity"` in an `id` or a property, from a decoder set to read them as numbers | kept as a string |
 | Position elements after the altitude | ignored |
 | `bbox` and foreign members | ignored, so they are lost in a round trip |
 

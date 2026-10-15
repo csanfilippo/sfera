@@ -101,6 +101,15 @@ import Testing
     func `integers are encoded exactly and fractional numbers as decimals`(number: JSONNumber, json: String) throws {
         #expect(try geoJSON(number) == json)
     }
+
+    @Test(arguments: [
+        (JSONNumber(Int64.max), "9223372036854775807"),
+        (JSONNumber(2.65), "2.65"),
+        (JSONNumber(2.0), "2"),
+    ])
+    func `a number is described as the number it holds`(number: JSONNumber, description: String) {
+        #expect(String(describing: number) == description)
+    }
     
     @Test(arguments: [
         (JSONNumber(Int64(2)), "2"),
