@@ -78,6 +78,12 @@ extension AtLeast: Hashable where Element: Hashable {
     }
 }
 
+extension AtLeast: CustomStringConvertible {
+    public var description: String {
+        Array(self).description
+    }
+}
+
 extension AtLeast: Encodable where Element: Encodable {
     public func encode(to encoder: any Encoder) throws {
         var container = encoder.unkeyedContainer()

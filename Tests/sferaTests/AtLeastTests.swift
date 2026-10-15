@@ -27,6 +27,16 @@ import Testing
 import Foundation
 
 @Suite struct AtLeastTests {
+    @Test func `collection is described as an array of all its elements`() {
+        #expect(String(describing: AtLeast<2, Int>([1, 2], [3])) == "[1, 2, 3]")
+    }
+
+    @Test func `line string is described as an array of positions`() throws {
+        let route = LineString([try at(12.4964, 41.9028), try at(11.2558, 43.7696)])
+
+        #expect(String(describing: route) == "[[12.4964, 41.9028], [11.2558, 43.7696]]")
+    }
+
     @Test func `count is the size of the guaranteed elements if no tail is present`() {
         let atLeast2 = AtLeast<2, Int>([1, 2])
 
