@@ -46,6 +46,19 @@ extension GeoJSON: Encodable {
     }
 }
 
+extension GeoJSON: CustomStringConvertible {
+    public var description: String {
+        switch self {
+        case .geometry(let geometry):
+            geometry.description
+        case .feature(let feature):
+            feature.description
+        case .featureCollection(let featureCollection):
+            featureCollection.description
+        }
+    }
+}
+
 extension GeoJSON: Decodable {
     private enum CodingKeys: String, CodingKey {
         case type

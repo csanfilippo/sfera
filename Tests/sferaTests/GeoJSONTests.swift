@@ -26,6 +26,16 @@ import sfera
 import Testing
 
 @Suite struct GeoJSONTests {
+    @Test func `object is described as the object it holds`() throws {
+        let feature = Feature(id: "rome", geometry: .point(try at(12.5, 41.9)))
+        let geometry: Geometry = .point(try at(12.5, 41.9))
+        let collection = FeatureCollection([feature])
+
+        #expect(String(describing: GeoJSON.geometry(geometry)) == String(describing: geometry))
+        #expect(String(describing: GeoJSON.feature(feature)) == String(describing: feature))
+        #expect(String(describing: GeoJSON.featureCollection(collection)) == String(describing: collection))
+    }
+
     @Test func `geometry object is encoded as the geometry itself`() throws {
         let object: GeoJSON = .geometry(.point(try at(12.5, 41.9)))
 

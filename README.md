@@ -229,6 +229,15 @@ Rejections are thrown as `DecodingError`, with the coding path of the offending 
 
 ### Output
 
+Printing a value shows the GeoJSON it stands for:
+
+```swift
+print(rome)    // [12.4964, 41.9028]
+print(route)   // [[12.4964, 41.9028], [11.2558, 43.7696], [9.19, 45.4642]]
+```
+
+That text is for reading, not for writing files: it lists `type` first and properties in key order, and coordinates keep a zero fraction (`10.0`). Encode with `JSONEncoder` to produce GeoJSON.
+
 `JSONEncoder` does not guarantee the order of object keys; set `outputFormatting = .sortedKeys` for stable output. To check what `sfera` produces against the specification, use the [GeoJSON validator](https://www.itb.ec.europa.eu/json/geojson/upload) of the European Commission's Interoperability Test Bed.
 
 ## Development
