@@ -58,6 +58,31 @@ extension Geometry {
     }
 }
 
+extension Geometry: CustomStringConvertible {
+    public var description: String {
+        switch self {
+        case .point(let position):
+            describe(.point, coordinates: position)
+        case .lineString(let lineString):
+            describe(.lineString, coordinates: lineString)
+        case .multiPoint(let points):
+            describe(.multiPoint, coordinates: points)
+        case .multiLineString(let lineStrings):
+            describe(.multiLineString, coordinates: lineStrings)
+        case .geometryCollection(let geometries):
+            GeoJSONType.geometryCollection.describe([(CodingKeys.geometries.rawValue, geometries.description)])
+        case .polygon(let polygon):
+            describe(.polygon, coordinates: polygon)
+        case .multiPolygon(let multiPolygon):
+            describe(.multiPolygon, coordinates: multiPolygon)
+        }
+    }
+
+    private func describe(_ type: GeoJSONType, coordinates: some CustomStringConvertible) -> String {
+        type.describe([(CodingKeys.coordinates.rawValue, coordinates.description)])
+    }
+}
+
 extension Geometry: Encodable {
     public func encode(to encoder: any Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)

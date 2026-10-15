@@ -35,6 +35,15 @@ enum GeoJSONType: String, Encodable {
     case featureCollection = "FeatureCollection"
 }
 
+extension GeoJSONType {
+    // An object of this type as GeoJSON text, `type` first, followed by the members, already described, in order.
+    func describe(_ members: [(name: String, value: String)]) -> String {
+        let type = (name: "type", value: "\"\(rawValue)\"")
+        let fields = ([type] + members).map { "\"\($0.name)\": \($0.value)" }
+        return "{" + fields.joined(separator: ", ") + "}"
+    }
+}
+
 extension GeoJSONType: Decodable {
     init(from decoder: any Decoder) throws {
         let container = try decoder.singleValueContainer()
