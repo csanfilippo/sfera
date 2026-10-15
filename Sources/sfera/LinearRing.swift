@@ -93,12 +93,24 @@ extension LinearRing {
     }
 }
 
+extension LinearRing {
+    // The ring as GeoJSON writes it: the vertices followed by the first one again.
+    private var closedPositions: [Position] {
+        Array(vertices) + [vertices[0]]
+    }
+}
+
+extension LinearRing: CustomStringConvertible {
+    public var description: String {
+        closedPositions.description
+    }
+}
+
 extension LinearRing: Encodable {
-    
+
     public func encode(to encoder: any Encoder) throws {
         var container = encoder.unkeyedContainer()
-        try container.encode(contentsOf: vertices)
-        try container.encode(vertices[0])
+        try container.encode(contentsOf: closedPositions)
     }
 }
 

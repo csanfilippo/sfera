@@ -27,6 +27,12 @@ import Testing
 import Foundation
 
 @Suite struct LinearRingTests {
+    @Test func `ring is described closed, as GeoJSON`() throws {
+        let triangle = LinearRing([try at(0.5, 0.5), try at(1.5, 0.5), try at(0.5, 1.5)])
+
+        #expect(String(describing: triangle) == "[[0.5, 0.5], [1.5, 0.5], [0.5, 1.5], [0.5, 0.5]]")
+    }
+
     @Test func `ring is closed by repeating the first vertex`() throws {
         let triangle = LinearRing([try at(0, 0), try at(1, 0), try at(0, 1)])
 
